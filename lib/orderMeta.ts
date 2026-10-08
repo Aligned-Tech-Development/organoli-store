@@ -12,7 +12,7 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
   cancelled: "Cancelled",
 };
 
-export const PAYMENT_METHODS = ["Cash on delivery", "Card on delivery", "Whish"] as const;
+export const PAYMENT_METHODS = ["Cash on delivery", "Whish"] as const;
 export const ZONES: string[] = site.deliveryZones.map((z) => z.zone);
 
 export interface OrderItem {

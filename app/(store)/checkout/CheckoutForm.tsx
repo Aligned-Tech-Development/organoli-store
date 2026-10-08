@@ -134,7 +134,7 @@ export function CheckoutForm({ signedIn, defaults }: { signedIn: boolean; defaul
         </Section>
 
         <Section n="3" title="Payment">
-          <div role="radiogroup" aria-label="Payment method" className="grid gap-2 sm:grid-cols-3">
+          <div role="radiogroup" aria-label="Payment method" className="grid gap-2 sm:grid-cols-2">
             {PAYMENT_METHODS.map((m) => {
               const on = form.payment === m;
               return (
@@ -146,7 +146,9 @@ export function CheckoutForm({ signedIn, defaults }: { signedIn: boolean; defaul
               );
             })}
           </div>
-          <span className="text-sm text-slate-text">You pay when the order arrives{form.payment === "Whish" ? " — we’ll send the Whish details when we confirm" : ""}.</span>
+          <span className="text-sm text-slate-text">
+            {form.payment === "Whish" ? "We’ll send the Whish payment details when we confirm your order." : "Pay in cash when your order arrives."}
+          </span>
         </Section>
       </div>
 
@@ -195,7 +197,7 @@ export function CheckoutForm({ signedIn, defaults }: { signedIn: boolean; defaul
             >
               {pending ? "Placing order…" : `Place order · ${money(subtotal)}`}
             </button>
-            <span className="text-center text-xs leading-[1.4] text-slate-text">Pay on delivery · Taxes included · Free returns on unopened items</span>
+            <span className="text-center text-xs leading-[1.4] text-slate-text">Cash on delivery or Whish · Taxes included · Free returns on unopened items</span>
           </div>
         </div>
       </aside>

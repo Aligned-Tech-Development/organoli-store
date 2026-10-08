@@ -18,7 +18,7 @@ export const site = {
   email: "hello@organoli.com",
   /** PLACEHOLDER — counter address and hours. */
   counter: { address: "Hamra Street, Beirut", hours: "Mon–Sat, 9:00–19:00", hoursShort: "Mon–Sat 9–19" },
-  payments: ["Cash on delivery", "Visa", "Mastercard", "Whish"],
+  payments: ["Cash on delivery", "Whish"],
   deliveryZones: [
     { zone: "Beirut", time: "next day" },
     { zone: "Mount Lebanon", time: "1–2 days" },

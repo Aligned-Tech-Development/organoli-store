@@ -140,7 +140,7 @@ export function CartDrawer({ pairs }: { pairs: CardProduct[] }) {
               Checkout
             </button>
           )}
-          <span className="text-center text-xs leading-[1.4] text-slate-text lg:text-[12.5px]">Pay on delivery · Taxes included · Free returns on unopened items</span>
+          <span className="text-center text-xs leading-[1.4] text-slate-text lg:text-[12.5px]">Cash on delivery or Whish · Taxes included · Free returns on unopened items</span>
         </div>
       </aside>
     </>
