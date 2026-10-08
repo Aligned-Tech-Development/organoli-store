@@ -1,3 +1,5 @@
+/* Clerk's styles sit below Tailwind utilities so our appearance classes win */
+@layer theme, base, clerk, components, utilities;
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 

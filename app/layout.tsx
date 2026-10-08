@@ -7,6 +7,8 @@ import { site } from "@/content/site";
 import { bestSellers, pharmacistPicks } from "@/content/merchandising";
 import { cardsFor } from "@/lib/catalog";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
+import { clerkAppearance } from "@/components/auth/appearance";
 
 const barlow = Barlow({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-barlow", display: "swap" });
 const barlowCondensed = Barlow_Condensed({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-barlow-condensed", display: "swap" });
@@ -24,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${barlow.variable} ${barlowCondensed.variable}`}>
       <body className="min-h-dvh bg-paper font-sans text-ink">
+        <ClerkProvider appearance={clerkAppearance} signInUrl="/sign-in" signUpUrl="/sign-up">
         <a href="#main" className="sr-only z-[200] rounded-sm bg-ink px-4 py-3 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
           Skip to content
         </a>
@@ -31,6 +34,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <CartDrawer pairs={cardsFor([...pharmacistPicks, ...bestSellers])} />
         <MobileTabBar />
         <StoreHydrator />
+        </ClerkProvider>
       </body>
     </html>
   );

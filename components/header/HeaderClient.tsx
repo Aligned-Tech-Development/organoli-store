@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, Heart, Menu, Search, ShoppingBag, User, X } from "lucide-react";
+import { ChevronDown, Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { megaIngredients, site, whatsappLink } from "@/content/site";
 import { cartCount, useCart, useUI, useWishlist } from "@/lib/store";
@@ -13,6 +13,7 @@ import { EmptyPanel, ResultsPanel } from "./SearchPanels";
 import type { HeaderData } from "./types";
 import { usePredictive } from "./usePredictive";
 import { Photo } from "../ProductImage";
+import { AccountButton } from "../auth/AccountButton";
 
 const NAV = [
   { label: "Shop", href: "/shop", mega: true },
@@ -170,9 +171,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
             <Link href="/routine" className="mr-2.5 border-b border-mint pb-[3px] text-xs font-semibold uppercase leading-none tracking-[.14em] text-ink">
               Find your routine
             </Link>
-            <a href={whatsappLink("Hello, I have a question about my account/order.")} target="_blank" rel="noopener noreferrer" aria-label="Account and order help" className="flex h-11 w-11 items-center justify-center rounded-sm hover:bg-paper-shade">
-              <User size={20} strokeWidth={1.75} />
-            </a>
+            <AccountButton />
             <Link href="/wishlist" aria-label={`Wishlist (${wishCount})`} className="relative flex h-11 w-11 items-center justify-center rounded-sm hover:bg-paper-shade">
               <Heart size={20} strokeWidth={1.75} />
               {wishCount > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-mint" />}
@@ -319,6 +318,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
             {searchPanel(searchOpen && compact, compactInputRef)}
           </div>
           <div className="flex items-center gap-1">
+            <AccountButton />
             <Link href="/wishlist" aria-label={`Wishlist (${wishCount})`} className="relative flex h-11 w-11 items-center justify-center rounded-sm hover:bg-paper-shade">
               <Heart size={20} strokeWidth={1.75} />
               {wishCount > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-mint" />}
@@ -351,9 +351,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
             <Menu size={22} strokeWidth={1.75} />
           </button>
           <Logo size="sm" />
-          <a href={whatsappLink("Hello, I have a question about my account/order.")} target="_blank" rel="noopener noreferrer" aria-label="Account and order help" className="flex h-11 w-11 items-center justify-center">
-            <User size={22} strokeWidth={1.75} />
-          </a>
+          <AccountButton size={22} />
         </div>
         <button type="button" onClick={() => open("search")} className="flex h-12 items-center gap-2.5 rounded-sm border border-ink bg-field px-3.5 text-left">
           <Search size={18} strokeWidth={1.75} aria-hidden="true" />
