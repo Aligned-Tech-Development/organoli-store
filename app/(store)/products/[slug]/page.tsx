@@ -187,7 +187,7 @@ export default async function ProductPage({ params }: { params: Params }) {
       </section>
 
       {/* Sticky in-page anchor nav (desktop) */}
-      <div className="sticky top-0 z-20 hidden border-y border-hairline bg-paper/95 backdrop-blur-[8px] lg:block">
+      <div className="sticky top-[var(--hdr,0px)] z-20 hidden border-y border-hairline bg-paper/95 backdrop-blur-[8px] transition-[top] duration-300 ease-out lg:block">
         <nav aria-label="On this page" className="no-scrollbar flex h-14 items-stretch gap-8 overflow-x-auto px-12">
           {anchors.map(([href, l]) => (
             <a key={href} href={href} className="flex flex-none items-center border-b-2 border-transparent text-[14.5px] font-medium leading-none text-ink hover:border-ink">

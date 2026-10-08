@@ -130,7 +130,7 @@ export default function HomePage() {
       {/* Why Organoli */}
       <section id="why-organoli" className="on-dark bg-ink px-4 py-10 text-paper lg:px-12 lg:py-[120px]" aria-labelledby="why-title">
         <div className="flex flex-col gap-1.5 lg:grid lg:grid-cols-[5fr_7fr] lg:items-start lg:gap-[72px]">
-          <Reveal className="flex flex-col gap-2.5 lg:sticky lg:top-10 lg:gap-7">
+          <Reveal className="flex flex-col gap-2.5 lg:sticky lg:top-[calc(var(--hdr,0px)+40px)] lg:transition-[top] lg:duration-300 lg:gap-7">
             <span className="label text-[10.5px] text-mint lg:text-[11px] lg:tracking-[.18em]">Why Organoli</span>
             <h2 id="why-title" className="m-0 mb-3.5 font-display text-[40px] font-medium leading-[.95] lg:mb-0 lg:text-[72px] lg:leading-[.92]">
               <span className="lg:hidden">Six things before anything reaches your door.</span>

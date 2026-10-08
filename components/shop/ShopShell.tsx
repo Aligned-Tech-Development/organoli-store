@@ -106,7 +106,7 @@ export function ShopShell({ filters, facets, results, total, labels, learn, show
       )}
 
       {/* Sticky toolbar */}
-      <div className="sticky top-[125px] z-20 mt-6 border-y border-hairline bg-paper/95 backdrop-blur-[8px] lg:top-0 lg:mt-8">
+      <div className="sticky top-[125px] z-20 mt-6 border-y border-hairline bg-paper/95 backdrop-blur-[8px] transition-[top] duration-300 ease-out lg:top-[var(--hdr,0px)] lg:mt-8">
         <div className="flex items-center gap-4 px-4 py-3 lg:px-12">
           <button
             type="button"

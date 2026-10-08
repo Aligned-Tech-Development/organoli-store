@@ -33,10 +33,13 @@ export function HeaderClient({ data }: { data: HeaderData }) {
   const [query, setQuery] = useState("");
   const [hoverNav, setHoverNav] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const compactInputRef = useRef<HTMLInputElement>(null);
   const { data: results } = usePredictive(query);
 
   const searchOpen = overlay === "search";
   const megaOpen = overlay === "mega";
+  const compact = useCompactHeader(searchOpen || megaOpen);
+  const activeInput = () => (compact ? compactInputRef.current : inputRef.current);
 
   // Close overlays on navigation
   const [lastPath, setLastPath] = useState(pathname);
@@ -55,11 +58,12 @@ export function HeaderClient({ data }: { data: HeaderData }) {
         close();
         setHoverNav(-1);
         inputRef.current?.blur();
+        compactInputRef.current?.blur();
       }
       const t = e.target as HTMLElement;
       if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(t.tagName) && !t.isContentEditable) {
         e.preventDefault();
-        inputRef.current?.focus();
+        (document.documentElement.dataset.compactHeader === "1" ? compactInputRef.current : inputRef.current)?.focus();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -71,9 +75,34 @@ export function HeaderClient({ data }: { data: HeaderData }) {
     const q = query.trim();
     if (!q) return;
     close();
-    inputRef.current?.blur();
+    activeInput()?.blur();
     router.push(`/search?q=${encodeURIComponent(q)}`);
   };
+
+  const searchPanel = (show: boolean, ref: React.RefObject<HTMLInputElement | null>) => (
+    <div
+      id={ref === inputRef ? "search-panel" : "search-panel-compact"}
+      className={`absolute left-1/2 top-[calc(100%+10px)] z-[5] w-[min(1000px,calc(100vw-96px))] -translate-x-1/2 border border-hairline bg-paper shadow-search transition-[opacity,transform] duration-[240ms] ease-out ${
+        show ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-1.5 opacity-0"
+      }`}
+      aria-hidden={!show}
+      inert={!show}
+    >
+      {show &&
+        (query.trim() ? (
+          <ResultsPanel q={query} data={results} onNavigate={close} />
+        ) : (
+          <EmptyPanel
+            trending={data.trending}
+            onPick={(q) => {
+              setQuery(q);
+              ref.current?.focus();
+            }}
+            onNavigate={close}
+          />
+        ))}
+    </div>
+  );
 
   const activeNav = pathname.startsWith("/shop") || pathname.startsWith("/products") ? 0 : pathname.startsWith("/brands") ? 2 : -1;
   const scrim = searchOpen || megaOpen;
@@ -122,7 +151,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
                   autoComplete="off"
                   role="combobox"
                   aria-autocomplete="list"
-                  aria-expanded={searchOpen}
+                  aria-expanded={searchOpen && !compact}
                   aria-controls="search-panel"
                 />
                 {query && (
@@ -133,27 +162,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
                 <kbd className="border border-hairline px-[7px] py-[5px] font-sans text-[11px] font-medium leading-none tracking-[.1em] text-slate-text">/</kbd>
               </label>
             </form>
-            <div
-              id="search-panel"
-              className={`absolute left-1/2 top-[calc(100%+10px)] z-[5] w-[min(1000px,calc(100vw-96px))] -translate-x-1/2 border border-hairline bg-paper shadow-search transition-[opacity,transform] duration-[240ms] ease-out ${
-                searchOpen ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-1.5 opacity-0"
-              }`}
-              aria-hidden={!searchOpen}
-              inert={!searchOpen}
-            >
-              {query.trim() ? (
-                <ResultsPanel q={query} data={results} onNavigate={close} />
-              ) : (
-                <EmptyPanel
-                  trending={data.trending}
-                  onPick={(q) => {
-                    setQuery(q);
-                    inputRef.current?.focus();
-                  }}
-                  onNavigate={close}
-                />
-              )}
-            </div>
+            {searchPanel(searchOpen && !compact, inputRef)}
           </div>
           <div className="flex items-center justify-end gap-1.5">
             <Link href="/routine" className="mr-2.5 border-b border-mint pb-[3px] text-xs font-semibold uppercase leading-none tracking-[.14em] text-ink">
@@ -220,7 +229,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
               <span>{site.currency}</span>
             </div>
           </nav>
-          <MegaMenu data={data} open={megaOpen} onNavigate={close} />
+          <MegaMenu data={data} open={megaOpen && !compact} onNavigate={close} />
         </div>
 
         {/* Scrim under the header for search + mega */}
@@ -230,9 +239,108 @@ export function HeaderClient({ data }: { data: HeaderData }) {
             setHoverNav(-1);
           }}
           aria-hidden="true"
-          className={`absolute inset-x-0 top-full z-[2] hidden h-[3000px] bg-ink/30 transition-opacity duration-300 ease-[ease] lg:block ${scrim ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+          className={`absolute inset-x-0 top-full z-[2] hidden h-[3000px] bg-ink/30 transition-opacity duration-300 ease-[ease] lg:block ${scrim && !compact ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
         />
       </header>
+
+      {/* Desktop compact bar — slides in when scrolling back up */}
+      <div
+        className={`fixed inset-x-0 top-0 z-[65] hidden font-sans text-ink transition-transform duration-300 ease-out lg:block ${compact ? "translate-y-0" : "-translate-y-[110%]"}`}
+        aria-hidden={!compact}
+        inert={!compact}
+        onMouseLeave={() => {
+          setHoverNav(-1);
+          if (megaOpen) close();
+        }}
+      >
+        <div className="relative z-[3] flex h-16 items-center gap-8 border-b border-hairline bg-paper/95 px-12 backdrop-blur-[10px]">
+          <Logo size="sm" />
+          <nav aria-label="Primary (compact)" className="flex h-full gap-7">
+            {NAV.slice(0, 4).map((n, i) => {
+              const on = hoverNav === i || (hoverNav === -1 && activeNav === i);
+              return (
+                <Link
+                  key={n.label}
+                  href={n.href}
+                  onMouseEnter={() => {
+                    setHoverNav(i);
+                    if (n.mega) open("mega");
+                    else if (megaOpen || searchOpen) close();
+                  }}
+                  onFocus={() => {
+                    setHoverNav(i);
+                    if (n.mega) open("mega");
+                  }}
+                  onClick={() => {
+                    close();
+                    setHoverNav(-1);
+                  }}
+                  aria-haspopup={n.mega ? "true" : undefined}
+                  aria-expanded={n.mega ? megaOpen && compact : undefined}
+                  className="relative flex h-full items-center gap-1.5 whitespace-nowrap text-[15px] font-medium leading-none"
+                >
+                  {n.label}
+                  {n.mega && <ChevronDown size={14} className="transition-transform duration-[240ms]" style={{ transform: megaOpen ? "rotate(180deg)" : "none" }} />}
+                  <span className="absolute inset-x-0 -bottom-px h-0.5 origin-left bg-ink transition-transform duration-nav ease-out" style={{ transform: on ? "scaleX(1)" : "scaleX(0)" }} />
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="relative ml-auto w-full max-w-[420px]">
+            <form role="search" onSubmit={submit}>
+              <label className={`flex h-11 items-center gap-2.5 rounded-sm border bg-field px-3.5 transition-[border-color,box-shadow] duration-200 ${searchOpen ? "border-ink shadow-halo" : "border-hairline"}`}>
+                <Search size={18} strokeWidth={1.75} aria-hidden="true" />
+                <span className="sr-only">Search products, ingredients and brands</span>
+                <input
+                  ref={compactInputRef}
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    open("search");
+                  }}
+                  onFocus={() => open("search")}
+                  placeholder={`Search ${data.totals.products} products…`}
+                  className="min-w-0 flex-1 border-0 bg-transparent text-[15px] leading-none text-ink outline-none placeholder:text-slate-text [&:focus-visible]:shadow-none [&:focus-visible]:outline-none"
+                  autoComplete="off"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded={searchOpen && compact}
+                  aria-controls="search-panel-compact"
+                />
+                {query && (
+                  <button type="button" onClick={() => setQuery("")} aria-label="Clear search" className="flex h-8 w-8 items-center justify-center">
+                    <X size={15} />
+                  </button>
+                )}
+              </label>
+            </form>
+            {searchPanel(searchOpen && compact, compactInputRef)}
+          </div>
+          <div className="flex items-center gap-1">
+            <Link href="/wishlist" aria-label={`Wishlist (${wishCount})`} className="relative flex h-11 w-11 items-center justify-center rounded-sm hover:bg-paper-shade">
+              <Heart size={20} strokeWidth={1.75} />
+              {wishCount > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-mint" />}
+            </Link>
+            <button type="button" onClick={() => useUI.getState().openCart()} aria-label={`Open bag, ${count} items`} className="flex h-11 items-center gap-2 rounded-sm px-3 hover:bg-paper-shade">
+              <ShoppingBag size={20} strokeWidth={1.75} />
+              <span key={bump} className={`h-5 min-w-5 rounded-pill bg-ink px-[5px] text-center text-[11px] font-semibold leading-5 text-paper ${bump ? "motion-safe:animate-bump" : ""}`}>
+                {count}
+              </span>
+            </button>
+          </div>
+        </div>
+        <div className="relative z-[2]">
+          <MegaMenu data={data} open={megaOpen && compact} onNavigate={close} />
+        </div>
+      </div>
+      <div
+        onClick={() => {
+          close();
+          setHoverNav(-1);
+        }}
+        aria-hidden="true"
+        className={`fixed inset-x-0 bottom-0 top-16 z-[64] hidden bg-ink/30 transition-opacity duration-300 ease-[ease] lg:block ${scrim && compact ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+      />
 
         {/* Mobile header */}
       <div className="sticky top-0 z-50 flex flex-col gap-2.5 border-b border-hairline bg-paper px-4 pb-3 pt-2.5 lg:hidden">
@@ -338,4 +446,52 @@ function MegaMenu({ data, open, onNavigate }: { data: HeaderData; open: boolean;
       </div>
     </div>
   );
+}
+
+/**
+ * Desktop compact header: hidden while the full header is on screen or while
+ * scrolling down; shown as soon as the user scrolls back up. Publishes its
+ * height as --hdr on <html> so other sticky bars can sit beneath it.
+ */
+function useCompactHeader(lock: boolean) {
+  const [visible, setVisible] = useState(false);
+  const lockRef = useRef(lock);
+  useEffect(() => {
+    lockRef.current = lock;
+  }, [lock]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    let lastY = window.scrollY;
+    let raf = 0;
+    const FULL_HEADER = 170;
+    const update = () => {
+      const y = window.scrollY;
+      if (!mq.matches || y <= FULL_HEADER) setVisible(false);
+      else if (!lockRef.current) {
+        if (y < lastY - 6) setVisible(true);
+        else if (y > lastY + 6) setVisible(false);
+      }
+      lastY = y;
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    mq.addEventListener("change", update);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      mq.removeEventListener("change", update);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--hdr", visible ? "64px" : "0px");
+    root.dataset.compactHeader = visible ? "1" : "0";
+  }, [visible]);
+
+  return visible;
 }

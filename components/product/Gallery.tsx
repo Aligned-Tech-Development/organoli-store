@@ -73,10 +73,10 @@ export function Gallery({ images, badge, name }: { images: ProductImage[]; badge
     </div>
   );
 
-  if (n < 2) return <div className="lg:sticky lg:top-6">{main}</div>;
+  if (n < 2) return <div className="lg:sticky lg:top-[calc(var(--hdr,0px)+24px)] lg:transition-[top] lg:duration-300">{main}</div>;
 
   return (
-    <div className="lg:sticky lg:top-6 lg:grid lg:grid-cols-[84px_minmax(0,1fr)] lg:gap-4">
+    <div className="lg:sticky lg:top-[calc(var(--hdr,0px)+24px)] lg:grid lg:transition-[top] lg:duration-300 lg:grid-cols-[84px_minmax(0,1fr)] lg:gap-4">
       <div className="hidden max-h-[calc(100vh-48px)] flex-col gap-2.5 overflow-y-auto lg:flex">
         {images.map((img, k) => (
           <button

@@ -56,7 +56,7 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
           <p className="m-0 max-w-[520px] justify-self-end text-lg leading-[1.55]">No terminology required. Pick a goal and we show the short list — the forms, doses and brands we’d choose ourselves.</p>
         </Reveal>
         <div className="grid grid-cols-[5fr_7fr] items-start gap-14">
-          <div className="sticky top-6 flex flex-col gap-[18px]">
+          <div className="sticky top-[calc(var(--hdr,0px)+24px)] flex flex-col transition-[top] duration-300 gap-[18px]">
             <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-paper-shade">
               {goals.map((x, i) => (
                 <div
