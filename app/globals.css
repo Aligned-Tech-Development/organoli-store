@@ -5,6 +5,10 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-padding-top: 72px;
+    /* No rubber-band gap at the top/bottom; where a browser still bounces,
+       the canvas is ink so it blends with the utility bar and footer. */
+    overscroll-behavior-y: none;
+    background: #24343a;
   }
   body {
     margin: 0;
