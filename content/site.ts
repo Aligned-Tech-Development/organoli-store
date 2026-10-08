@@ -13,8 +13,8 @@ export const site = {
   timeZone: "Asia/Beirut",
   /** PLACEHOLDER — pharmacist shown across the site. */
   pharmacist: { name: "Rana Haddad", firstName: "Rana", initials: "RH", title: "Founder · Pharmacist", credentials: "PharmD", avatar: "/images/pharmacist.jpg" },
-  /** PLACEHOLDER — WhatsApp number in international format, digits only for links. */
-  whatsapp: { display: "+961 3 123 123", digits: "9613123123" },
+  /** WhatsApp number: display format, and digits only for wa.me links. */
+  whatsapp: { display: "+961 81 047 743", digits: "96181047743" },
   email: "hello@organoli.com",
   /** PLACEHOLDER — counter address and hours. */
   counter: { address: "Hamra Street, Beirut", hours: "Mon–Sat, 9:00–19:00", hoursShort: "Mon–Sat 9–19" },
