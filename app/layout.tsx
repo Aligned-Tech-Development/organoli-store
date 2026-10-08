@@ -5,7 +5,7 @@ import { MobileTabBar } from "@/components/MobileTabBar";
 import { StoreHydrator } from "@/components/Providers";
 import { site } from "@/content/site";
 import { bestSellers, pharmacistPicks } from "@/content/merchandising";
-import { cardsFor } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkAppearance } from "@/components/auth/appearance";
@@ -23,7 +23,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#F2F1ED" };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const catalog = await getCatalog();
   return (
     <html lang="en" className={`${barlow.variable} ${barlowCondensed.variable}`}>
       <body className="min-h-dvh bg-paper font-sans text-ink">
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         {children}
-        <CartDrawer pairs={cardsFor([...pharmacistPicks, ...bestSellers])} />
+        <CartDrawer pairs={catalog.cardsFor([...pharmacistPicks, ...bestSellers])} />
         <MobileTabBar />
         <StoreHydrator />
         <WishlistSync />

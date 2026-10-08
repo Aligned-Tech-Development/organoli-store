@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/Img";
 import Link from "next/link";
 import { Truck, X } from "lucide-react";
 import { site } from "@/content/site";

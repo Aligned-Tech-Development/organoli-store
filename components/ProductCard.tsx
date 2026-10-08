@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/Img";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

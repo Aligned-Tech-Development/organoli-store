@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { bestSellers, pharmacistPicks } from "@/content/merchandising";
-import { getProducts, toCard } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
 import { RoutineFinder, type QuizProduct } from "./RoutineFinder";
 
 export const metadata: Metadata = {
@@ -8,11 +8,12 @@ export const metadata: Metadata = {
   description: "Four questions, a short list of supplements chosen from what we stock today in Beirut. A shopping guide, not a diagnosis.",
 };
 
-export default function RoutinePage() {
-  const products: QuizProduct[] = getProducts()
+export default async function RoutinePage() {
+  const catalog = await getCatalog();
+  const products: QuizProduct[] = catalog.getProducts()
     .filter((p) => p.stock !== "out" && p.price > 0 && p.goals.length)
     .map((p) => ({
-      ...toCard(p),
+      ...catalog.toCard(p),
       goals: p.goals,
       dietary: p.dietary,
       format: p.format,

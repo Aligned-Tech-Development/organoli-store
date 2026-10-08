@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { categoryNotes } from "@/content/editorial";
 import { site } from "@/content/site";
-import { FILTER_KEYS, filterLabel, getProducts, inCategory, listProducts, toCard } from "@/lib/catalog";
+import { getCatalog, FILTER_KEYS } from "@/lib/catalog";
 import { parseFilters } from "@/lib/filters";
 import { CATEGORY_BY_SLUG, GOAL_BY_SLUG } from "@/lib/taxonomy";
 import type { CategorySlug, GoalSlug } from "@/lib/types";
@@ -10,11 +10,12 @@ import { Photo } from "@/components/ProductImage";
 
 type SP = Record<string, string | string[] | undefined>;
 
-export function ShopPage({ category, searchParams }: { category: CategorySlug | null; searchParams: SP }) {
+export async function ShopPage({ category, searchParams }: { category: CategorySlug | null; searchParams: SP }) {
+  const catalog = await getCatalog();
   const filters = parseFilters(searchParams);
   const meta = category ? CATEGORY_BY_SLUG[category] : null;
-  const base = category ? inCategory(category) : getProducts();
-  const { results, facets } = listProducts(base, filters);
+  const base = category ? catalog.inCategory(category) : catalog.getProducts();
+  const { results, facets } = catalog.listProducts(base, filters);
   const note = categoryNotes[category ?? "all"];
 
   // A single goal (from "Shop by goal") becomes the page title on /shop
@@ -23,7 +24,7 @@ export function ShopPage({ category, searchParams }: { category: CategorySlug | 
   const intro = meta?.intro ?? (singleGoal ? `${singleGoal.ingredients}. The short list we’d choose ourselves — filter by form, diet or format.` : `Everything on the shelf — ${base.length} products, each chosen by a pharmacist and listed with its full specification.`);
 
   const labels: Record<string, string> = {};
-  for (const k of FILTER_KEYS) for (const v of filters[k]) labels[`${k}:${v}`] = filterLabel(k, v);
+  for (const k of FILTER_KEYS) for (const v of filters[k]) labels[`${k}:${v}`] = catalog.filterLabel(k, v);
 
   return (
     <>
@@ -74,7 +75,7 @@ export function ShopPage({ category, searchParams }: { category: CategorySlug | 
       <ShopShell
         filters={filters}
         facets={facets}
-        results={results.map(toCard)}
+        results={results.map(catalog.toCard)}
         total={results.length}
         labels={labels}
         learn={note.learn}

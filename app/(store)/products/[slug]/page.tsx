@@ -7,19 +7,21 @@ import { MobileTabs, Warnings } from "@/components/product/Bits";
 import { Gallery } from "@/components/product/Gallery";
 import { defaultWarnings, productContent } from "@/content/products";
 import { site, whatsappLink } from "@/content/site";
-import { badgeFor, compareSet, getProduct, getProducts, relatedProducts, toCard } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
 import { money, stockDot } from "@/lib/format";
 import { CATEGORY_BY_SLUG, GOAL_BY_SLUG } from "@/lib/taxonomy";
 import { Photo } from "@/components/ProductImage";
 
 type Params = Promise<{ slug: string }>;
 
-export function generateStaticParams() {
-  return getProducts().map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const catalog = await getCatalog();
+  return catalog.getProducts().map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const p = getProduct((await params).slug);
+  const catalog = await getCatalog();
+  const p = catalog.getProduct((await params).slug);
   if (!p) return {};
   const title = `${p.brand ? `${p.brand} ` : ""}${p.name}${p.count ? `, ${p.count}` : ""}`;
   return {
@@ -46,13 +48,14 @@ function Section({ id, n, title, aside, children }: { id: string; n: string; tit
 }
 
 export default async function ProductPage({ params }: { params: Params }) {
-  const p = getProduct((await params).slug);
+  const catalog = await getCatalog();
+  const p = catalog.getProduct((await params).slug);
   if (!p) notFound();
   const extra = productContent[p.slug] ?? {};
   const cat = CATEGORY_BY_SLUG[p.category];
-  const card = toCard(p);
-  const related = relatedProducts(p).map(toCard);
-  const compare = compareSet(p);
+  const card = catalog.toCard(p);
+  const related = catalog.relatedProducts(p).map(catalog.toCard);
+  const compare = catalog.compareSet(p);
   const formLine = [p.format, p.form?.toLowerCase()].filter(Boolean).join(" · ");
 
   const specs: [string, string][] = [
@@ -109,7 +112,7 @@ export default async function ProductPage({ params }: { params: Params }) {
       </nav>
 
       <section className="lg:grid lg:grid-cols-[7fr_5fr] lg:items-start lg:gap-14 lg:px-12 lg:pb-20">
-        <Gallery images={p.images} badge={badgeFor(p.slug)} name={p.fullName} />
+        <Gallery images={p.images} badge={catalog.badgeFor(p.slug)} name={p.fullName} />
 
         <div className="flex flex-col gap-3 px-4 py-5 lg:gap-[22px] lg:px-0 lg:py-0">
           <div className="flex flex-col gap-3">
@@ -482,3 +485,6 @@ function BuyBoxMobileOnly(props: React.ComponentProps<typeof BuyBox>) {
     </div>
   );
 }
+
+// Products added in hader after the last build render on first visit; all pages refresh with the catalogue.
+export const revalidate = 300;

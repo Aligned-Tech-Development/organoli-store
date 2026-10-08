@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/Img";
 import { Heart, MapPin, MessageCircle, ShoppingBag, Truck, Wallet } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatchCountdown } from "@/components/motion";

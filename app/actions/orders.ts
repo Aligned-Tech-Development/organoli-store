@@ -31,7 +31,7 @@ export async function placeOrder(form: {
   if (!zone.startsWith("Click") && address.length < 5) return { ok: false, field: "address", error: "Enter the delivery address — street, building and floor." };
   if (!(PAYMENT_METHODS as readonly string[]).includes(payment)) return { ok: false, field: "payment", error: "Choose how you’d like to pay." };
 
-  const { items, subtotal, problems } = priceLines(Array.isArray(form.lines) ? form.lines : []);
+  const { items, subtotal, problems } = await priceLines(Array.isArray(form.lines) ? form.lines : []);
   if (problems.length) return { ok: false, error: `${problems.join(" ")} Remove it from your bag and try again.` };
   if (!items.length) return { ok: false, error: "Your bag is empty." };
 

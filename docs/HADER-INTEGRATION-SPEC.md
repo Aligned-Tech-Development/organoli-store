@@ -16,6 +16,10 @@ Everything below is additive: new API-key scopes, three API-key endpoints, one `
 | Show a customer their orders | Dashboard only (`carts.routes.ts`, session auth) | No way to read a customer's orders with an API key. |
 | Keep the website in sync | Webhooks `product_created/updated/deleted`, `cart_status_changed` exist and are HMAC-signed | Payloads carry only `{ id, sku }` (fine), but the **CSV import worker emits no webhooks**, so bulk changes are invisible to subscribers. |
 
+### Interim product sync (live on the website now)
+
+Until §3 ships, the website reads the existing `GET /api/v1/read/products` with a `read:catalog` key, one request per website category × availability (16 requests, each group < 100 products), cached 5 minutes and refreshed instantly by the `product_*` / `catalog_changed` webhooks. Limits of this stop-gap: only the main photo comes from hader, products must sit in one of the 8 website categories, and a group reaching 100 products would be truncated (the website logs a warning). Code: `organoli-store/lib/hader.ts`.
+
 ---
 
 ## 2. New API-key scopes
@@ -206,4 +210,4 @@ Until then, the website's export omits the Stock column and puts unpriced produc
 2. **Webhook endpoint** as in §7 → signing secret given to the website as `HADER_WEBHOOK_SECRET`.
 3. **Shop form fields** with keys `address`, `area`, `payment`, `notes`; delivery fee and free-delivery threshold ($75 for Beirut today).
 4. **Products** — imported once from `data/hader/organoli-products.csv` and `organoli-products-no-price.csv` (Catalog → Import → Products); SKU = website slug.
-5. **WhatsApp bot** on +961 81 047 743, so bot orders and website orders share the same orders page.
+5. **WhatsApp bot** on its own number (to be decided — **not** +961 81 047 743, which stays the website's customer-service WhatsApp), so bot orders and website orders share the same orders page.

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/Img";
 import Link from "next/link";
 import { CountUp, DrawRule, Reveal } from "@/components/motion";
 import { Photo } from "@/components/ProductImage";
@@ -11,12 +11,12 @@ import { Newsletter } from "@/components/home/Newsletter";
 import { articleMeta, articles, curateSteps, edits, featuredBrands, trustPoints, trustStrip } from "@/content/editorial";
 import { bestSellers, essentialsTabs, heroProduct, pharmacistPicks } from "@/content/merchandising";
 import { site } from "@/content/site";
-import { cardsFor, categoryCounts, getBrand, getBrands, getProduct, goalCounts, inCategory, newArrivals, recommended, toCard, totalCounts } from "@/lib/catalog";
+import { getCatalog, type Catalog } from "@/lib/catalog";
 import { roundWords } from "@/lib/format";
 import type { CategorySlug } from "@/lib/types";
 
-function heroCard(): HeroProduct | null {
-  const p = getProduct(heroProduct);
+function heroCard(catalog: Catalog): HeroProduct | null {
+  const p = catalog.getProduct(heroProduct);
   if (!p) return null;
   const words = p.name.split(" ");
   const mid = Math.ceil(words.length / 2);
@@ -37,10 +37,11 @@ function heroCard(): HeroProduct | null {
 
 const TILE_BG = ["ph-paper", "ph-mint"];
 
-export default function HomePage() {
-  const totals = totalCounts();
-  const cats = categoryCounts();
-  const brands = getBrands();
+export default async function HomePage() {
+  const catalog = await getCatalog();
+  const totals = catalog.totalCounts();
+  const cats = catalog.categoryCounts();
+  const brands = catalog.getBrands();
 
   const editViews: EditView[] = edits.map((e) => ({
     tab: e.tab,
@@ -52,15 +53,15 @@ export default function HomePage() {
     tone: e.tone,
     foot: e.foot,
     steps: e.steps.flatMap((s) => {
-      const p = getProduct(s.product);
-      return p ? [{ time: s.time, label: s.label, p: toCard(p) }] : [];
+      const p = catalog.getProduct(s.product);
+      return p ? [{ time: s.time, label: s.label, p: catalog.toCard(p) }] : [];
     }),
   }));
 
-  const featured = [...bestSellers, ...pharmacistPicks].map(getProduct).filter((p) => p !== null);
+  const featured = [...bestSellers, ...pharmacistPicks].map(catalog.getProduct).filter((p) => p !== null);
   const essentials = essentialsTabs.map((t) => ({
     label: t.label,
-    items: (t.category ? recommended(inCategory(t.category as CategorySlug).filter((p) => p.stock !== "out"), 8) : recommended(featured, 8)).map(toCard),
+    items: (t.category ? catalog.recommended(catalog.inCategory(t.category as CategorySlug).filter((p) => p.stock !== "out"), 8) : catalog.recommended(featured, 8)).map(catalog.toCard),
   }));
 
   const marquee = brands.slice(0, 8).map((b) => b.name);
@@ -68,7 +69,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Hero headline={`${roundWords(totals.brands)} brands.`} product={heroCard()} />
+      <Hero headline={`${roundWords(totals.brands)} brands.`} product={heroCard(catalog)} />
 
       {/* Trust strip */}
       <div className="no-scrollbar flex overflow-x-auto border-b border-hairline lg:grid lg:grid-cols-4">
@@ -115,13 +116,13 @@ export default function HomePage() {
 
       <Favourites
         tabs={[
-          { label: "Best sellers", short: "Best sellers", items: cardsFor(bestSellers) },
-          { label: "New on the shelf", short: "New", items: newArrivals(6) },
-          { label: "Pharmacist picks", short: "Pharmacist picks", items: cardsFor(pharmacistPicks) },
+          { label: "Best sellers", short: "Best sellers", items: catalog.cardsFor(bestSellers) },
+          { label: "New on the shelf", short: "New", items: catalog.newArrivals(6) },
+          { label: "Pharmacist picks", short: "Pharmacist picks", items: catalog.cardsFor(pharmacistPicks) },
         ]}
       />
 
-      <GoalIndex goals={goalCounts().map(({ slug, name, ingredients, caption, image, count }) => ({ slug, name, ingredients, caption, image, count }))} />
+      <GoalIndex goals={catalog.goalCounts().map(({ slug, name, ingredients, caption, image, count }) => ({ slug, name, ingredients, caption, image, count }))} />
 
       <Edits edits={editViews} />
 
@@ -136,7 +137,7 @@ export default function HomePage() {
               <span className="lg:hidden">Six things before anything reaches your door.</span>
               <span className="hidden lg:inline">Six things that happen before anything reaches your door.</span>
             </h2>
-            <DispensingLabel />
+            <DispensingLabel catalog={catalog} />
           </Reveal>
           <div className="flex flex-col lg:border-t lg:border-paper/30">
             {trustPoints.map((t) => (
@@ -223,7 +224,7 @@ export default function HomePage() {
         </div>
         <div className="grid grid-cols-3 gap-6 px-12 pt-12">
           {featuredBrands.map((fb) => {
-            const b = getBrand(fb.slug);
+            const b = catalog.getBrand(fb.slug);
             if (!b) return null;
             return (
               <Reveal key={fb.slug}>
@@ -291,8 +292,8 @@ export default function HomePage() {
   );
 }
 
-function DispensingLabel() {
-  const p = getProduct(bestSellers[0]) ?? getProduct(heroProduct);
+function DispensingLabel({ catalog }: { catalog: Catalog }) {
+  const p = catalog.getProduct(bestSellers[0]) ?? catalog.getProduct(heroProduct);
   return (
     <div className="relative mt-6 hidden aspect-[7/4] max-w-[460px] -rotate-2 flex-col justify-between bg-paper px-6 py-[22px] text-ink shadow-[0_40px_60px_-30px_rgba(0,0,0,.6)] lg:flex" aria-hidden="true">
       <span className="absolute -left-3 -top-3 text-xl font-light leading-none text-mint">+</span>
@@ -316,4 +317,5 @@ function DispensingLabel() {
   );
 }
 
-export const dynamic = "force-static";
+// Refreshed with the catalogue: every 5 minutes, or instantly on a hader webhook.
+export const revalidate = 300;

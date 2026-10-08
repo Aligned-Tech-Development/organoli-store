@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getBrands } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
 
 export const metadata: Metadata = { title: "Brands A–Z", description: "Every brand on the Organoli shelf." };
 
-export default function BrandsPage() {
-  const brands = [...getBrands()].sort((a, b) => a.name.localeCompare(b.name));
+export default async function BrandsPage() {
+  const catalog = await getCatalog();
+  const brands = [...catalog.getBrands()].sort((a, b) => a.name.localeCompare(b.name));
   const groups = new Map<string, typeof brands>();
   for (const b of brands) {
     const k = /[a-z]/i.test(b.name[0]) ? b.name[0].toUpperCase() : "#";

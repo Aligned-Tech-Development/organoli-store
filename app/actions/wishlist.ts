@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { getProduct } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
 
 const MAX_ITEMS = 200;
 
@@ -17,7 +17,8 @@ export async function getWishlist(): Promise<string[] | null> {
 export async function saveWishlist(slugs: string[]): Promise<{ ok: boolean }> {
   const { userId } = await auth();
   if (!userId) return { ok: false };
-  const clean = [...new Set(slugs)].filter((s) => typeof s === "string" && getProduct(s)).slice(0, MAX_ITEMS);
+  const catalog = await getCatalog();
+  const clean = [...new Set(slugs)].filter((s) => typeof s === "string" && catalog.getProduct(s)).slice(0, MAX_ITEMS);
   await (await clerkClient()).users.updateUserMetadata(userId, { privateMetadata: { wishlist: clean } });
   return { ok: true };
 }

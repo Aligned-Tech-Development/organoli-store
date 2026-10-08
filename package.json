@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "catalog": "node scripts/build-catalog.mjs",
-    "build": "node scripts/build-catalog.mjs && next build",
+    "catalog": "node scripts/build-catalog.ts",
+    "build": "node scripts/build-catalog.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",

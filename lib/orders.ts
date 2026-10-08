@@ -1,6 +1,6 @@
 // Orders data access (Neon Postgres). Server-only.
 import { neon } from "@neondatabase/serverless";
-import { getProduct } from "./catalog";
+import { getCatalog } from "./catalog";
 import { canBuy } from "./format";
 import { orderNumber, type Order, type OrderItem, type OrderStatus } from "./orderMeta";
 
@@ -44,11 +44,12 @@ export interface NewOrderInput {
 }
 
 /** Prices and names come from the catalogue, never from the browser. */
-export function priceLines(lines: { slug: string; qty: number }[]) {
+export async function priceLines(lines: { slug: string; qty: number }[]) {
+  const catalog = await getCatalog();
   const items: OrderItem[] = [];
   const problems: string[] = [];
   for (const l of lines.slice(0, 50)) {
-    const p = getProduct(l.slug);
+    const p = catalog.getProduct(l.slug);
     const qty = Math.min(20, Math.max(1, Math.floor(Number(l.qty) || 0)));
     if (!p) continue;
     if (!canBuy(p)) {

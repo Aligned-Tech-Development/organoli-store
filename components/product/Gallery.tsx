@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/Img";
 import { useRef, useState } from "react";
 import { pad2 } from "@/lib/format";
 import type { Badge, ProductImage } from "@/lib/types";

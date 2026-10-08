@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { articleMeta } from "@/content/editorial";
 import { popularSearches, whatsappLink } from "@/content/site";
 import { articlesFor } from "@/lib/articles";
-import { predictive, searchProducts, toCard } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
 import { sortProducts, type Sort } from "@/lib/filters";
 import { plural } from "@/lib/format";
 
@@ -17,11 +17,12 @@ export async function generateMetadata({ searchParams }: { searchParams: SP }): 
 
 export default async function SearchPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
+  const catalog = await getCatalog();
   const q = (sp.q ?? "").trim().slice(0, 80);
   const sort = (["lo", "hi", "new"].includes(sp.sort ?? "") ? sp.sort : "rec") as Sort;
-  const found = q ? searchProducts(q) : [];
+  const found = q ? catalog.searchProducts(q) : [];
   const results = sort === "rec" ? found : sortProducts(found, sort);
-  const meta = q ? predictive(q) : null;
+  const meta = q ? catalog.predictive(q) : null;
   const arts = q ? articlesFor(q, 3) : [];
   const href = (s: Sort) => `/search?q=${encodeURIComponent(q)}${s === "rec" ? "" : `&sort=${s}`}`;
 
@@ -95,7 +96,7 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
           {results.length ? (
             <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-12">
               {results.map((p) => (
-                <ProductCard key={p.slug} p={toCard(p)} />
+                <ProductCard key={p.slug} p={catalog.toCard(p)} />
               ))}
             </div>
           ) : (
