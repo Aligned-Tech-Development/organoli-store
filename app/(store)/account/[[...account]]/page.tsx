@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { UserProfile } from "@clerk/nextjs";
-import { Package } from "lucide-react";
-import { clerkAppearance } from "@/components/auth/appearance";
-import { OrdersPanel } from "@/components/orders/OrdersPanel";
+import { AccountProfile } from "@/components/auth/AccountProfile";
 
 export const metadata: Metadata = { title: "Your account", robots: { index: false } };
 
@@ -12,19 +9,7 @@ export default function AccountPage() {
       <span className="eyebrow">Your account</span>
       <h1 className="m-0 mt-4 font-display text-[60px] font-medium leading-[.85] lg:text-[112px]">Account</h1>
       <div className="mt-10">
-        <UserProfile
-          path="/account"
-          appearance={{
-            ...clerkAppearance,
-            elements: { ...clerkAppearance.elements, rootBox: "w-full", cardBox: "w-full max-w-none shadow-none rounded-sm border border-hairline" },
-          }}
-        >
-          <UserProfile.Page label="account" />
-          <UserProfile.Page label="Orders" url="orders" labelIcon={<Package size={16} />}>
-            <OrdersPanel />
-          </UserProfile.Page>
-          <UserProfile.Page label="security" />
-        </UserProfile>
+        <AccountProfile />
       </div>
     </div>
   );
