@@ -37,3 +37,21 @@ export const clerkAppearance = {
     userButtonPopoverCard: "rounded-sm border border-hairline shadow-mega",
   },
 } as const;
+
+/** For forms set inside the AuthShell label: Clerk's own card, header and switch link are removed. */
+export const labelAppearance = {
+  ...clerkAppearance,
+  elements: {
+    ...clerkAppearance.elements,
+    rootBox: "!w-full",
+    cardBox: "!w-full !max-w-none !shadow-none !border-0 !rounded-none !bg-transparent",
+    card: "!w-full !shadow-none !border-0 !rounded-none !bg-transparent !p-0 !gap-6",
+    header: "hidden",
+    main: "!w-full",
+    form: "!w-full",
+    footer: "!bg-transparent !bg-none mt-2 !p-0 [&>div]:!bg-transparent [&>div]:!px-0",
+    footerAction: "hidden",
+    formFieldInput: "h-12 rounded-sm border-hairline bg-field text-base shadow-none focus:border-ink",
+    formButtonPrimary: "h-14 rounded-sm bg-slate-700 text-[13px] font-semibold uppercase tracking-[.16em] shadow-none hover:bg-ink",
+  },
+} as const;
