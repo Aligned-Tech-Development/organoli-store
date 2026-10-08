@@ -3,9 +3,14 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // Only the account area needs a signed-in user; the store stays public.
 const isAccountRoute = createRouteMatcher(["/account(.*)"]);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isAccountRoute(req)) await auth.protect();
-});
+export default clerkMiddleware(
+  async (auth, req) => {
+    if (!isAccountRoute(req)) return;
+    const { userId, redirectToSignIn } = await auth();
+    if (!userId) return redirectToSignIn({ returnBackUrl: req.url });
+  },
+  { signInUrl: "/sign-in", signUpUrl: "/sign-up" },
+);
 
 export const config = {
   matcher: [
