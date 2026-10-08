@@ -11,11 +11,8 @@ export function AccountButton({ size = 20 }: { size?: number }) {
   if (isLoaded && isSignedIn)
     return (
       <span className="flex h-11 w-11 items-center justify-center">
-        <UserButton appearance={clerkAppearance}>
-          <UserButton.MenuItems>
-            <UserButton.Link label="Your account" labelIcon={<User size={14} />} href="/account" />
-          </UserButton.MenuItems>
-        </UserButton>
+        {/* "Manage account" opens the full /account page rather than a modal */}
+        <UserButton appearance={clerkAppearance} userProfileMode="navigation" userProfileUrl="/account" />
       </span>
     );
   return (

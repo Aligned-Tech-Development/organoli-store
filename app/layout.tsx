@@ -9,6 +9,7 @@ import { cardsFor } from "@/lib/catalog";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkAppearance } from "@/components/auth/appearance";
+import { WishlistSync } from "@/components/auth/WishlistSync";
 
 const barlow = Barlow({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-barlow", display: "swap" });
 const barlowCondensed = Barlow_Condensed({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-barlow-condensed", display: "swap" });
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <CartDrawer pairs={cardsFor([...pharmacistPicks, ...bestSellers])} />
         <MobileTabBar />
         <StoreHydrator />
+        <WishlistSync />
         </ClerkProvider>
       </body>
     </html>

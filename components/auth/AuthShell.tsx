@@ -8,7 +8,7 @@ type Mode = "sign-in" | "sign-up";
 const COPY: Record<Mode, { title: string; lede: string }> = {
   "sign-in": {
     title: "Sign in.",
-    lede: "Use the email you created your account with. Your bag and wishlist on this device stay exactly as they are.",
+    lede: "Use the email you created your account with. Anything you’ve saved to your wishlist here is added to your account; your bag stays as it is.",
   },
   "sign-up": {
     title: "Create an account.",
