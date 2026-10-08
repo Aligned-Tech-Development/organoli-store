@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Truck, X } from "lucide-react";
-import { site, whatsappLink } from "@/content/site";
+import { site } from "@/content/site";
 import { money } from "@/lib/format";
 import { cartCount, cartSubtotal, useCart, useUI } from "@/lib/store";
 import type { CardProduct } from "@/lib/types";
@@ -19,13 +19,6 @@ export function CartDrawer({ pairs }: { pairs: CardProduct[] }) {
   const left = site.freeDeliveryThreshold - subtotal;
   const pair = pairs.find((p) => !lines.some((l) => l.slug === p.slug));
   useScrollLock(open);
-
-  const orderText = [
-    "Hello Organoli, I'd like to order:",
-    ...lines.map((l) => `• ${l.qty} × ${l.brand ? `${l.brand} ` : ""}${l.name}${l.specLine ? ` (${l.specLine})` : ""} — ${money(l.price * l.qty)}`),
-    `Subtotal: ${money(subtotal)}`,
-    "Delivery area: ",
-  ].join("\n");
 
   return (
     <>
@@ -135,20 +128,19 @@ export function CartDrawer({ pairs }: { pairs: CardProduct[] }) {
             <span className="text-[22px] font-semibold leading-none tabular-nums lg:text-2xl">{money(subtotal)}</span>
           </div>
           {lines.length ? (
-            <a
-              href={whatsappLink(orderText)}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/checkout"
+              onClick={close}
               className="flex h-[54px] items-center justify-center rounded-sm bg-slate-700 text-[13px] font-semibold uppercase leading-none tracking-[.16em] text-paper transition-[background,transform] duration-200 hover:bg-ink active:scale-[.985] lg:h-14"
             >
               Checkout
-            </a>
+            </Link>
           ) : (
             <button type="button" disabled className="h-[54px] rounded-sm bg-out-of-stock text-[13px] font-semibold uppercase tracking-[.16em] text-paper lg:h-14">
               Checkout
             </button>
           )}
-          <span className="text-center text-xs leading-[1.4] text-slate-text lg:text-[12.5px]">Cash on delivery or card · Taxes included · Free returns on unopened items</span>
+          <span className="text-center text-xs leading-[1.4] text-slate-text lg:text-[12.5px]">Pay on delivery · Taxes included · Free returns on unopened items</span>
         </div>
       </aside>
     </>

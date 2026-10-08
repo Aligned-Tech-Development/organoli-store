@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Only the account area needs a signed-in user; the store stays public.
-const isAccountRoute = createRouteMatcher(["/account(.*)"]);
+// The account area and staff pages need a signed-in user; the store stays public.
+const isAccountRoute = createRouteMatcher(["/account(.*)", "/admin(.*)"]);
 
 export default clerkMiddleware(
   async (auth, req) => {
