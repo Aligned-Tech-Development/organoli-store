@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "hader:export": "node scripts/export-hader-import.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.12",
