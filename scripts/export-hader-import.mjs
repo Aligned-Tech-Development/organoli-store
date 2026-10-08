@@ -1,18 +1,20 @@
-// Exports the current catalogue as a hader.ai product import file.
-//   npm run hader:export  →  data/hader/organoli-products.csv
+// Exports the current catalogue as hader.ai product import files.
+//   npm run hader:export  →  data/hader/organoli-products.csv            (priced products)
+//                            data/hader/organoli-products-no-price.csv   (products without a price)
 //
-// Upload it in hader: Catalog → Import → Products (CSV). Columns use hader's own
+// Upload both in hader: Catalog → Import → Products (CSV). Columns use hader's own
 // template labels, so they map automatically:
 //   SKU, Name, Short description, Description, Price, Currency, Available,
-//   Stock, Category slug, Image URLs
+//   Category slug, Image URLs
 //
 // Mapping decisions
 // - SKU = the website slug, so hader and the website refer to a product by the
-//   same key (the WooCommerce export had no SKUs).
+//   same key (the WooCommerce export had no SKUs). Re-importing updates by SKU.
 // - Name = the full original name, e.g. "Zinc Glycinate (Now), 120 softgels".
 //   The website derives brand, count and dose from it, and the bot matches on it.
-// - Price is in cents (hader stores minor units); $0 products are left blank so
-//   they can be priced in hader.
+// - Price is in cents (hader stores minor units).
+// - hader rejects EMPTY numeric cells ("Invalid input"), so there is no Stock
+//   column, and unpriced products go in a second file with no Price column.
 // - Category slug = the website's primary category (8 groups). hader creates
 //   missing categories automatically — rename them in hader afterwards.
 // - Image URLs = up to 6 photos from organoli.com (hader's import limit).
@@ -25,31 +27,36 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const { products } = JSON.parse(readFileSync(join(root, "data/catalog.json"), "utf8"));
 
-const HEADERS = ["SKU", "Name", "Short description", "Description", "Price", "Currency", "Available", "Stock", "Category slug", "Image URLs"];
+const HEADERS = ["SKU", "Name", "Short description", "Description", "Price", "Currency", "Available", "Category slug", "Image URLs"];
 
 const cell = (v) => {
   const s = v == null ? "" : String(v);
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
-const rows = products.map((p) => [
-  p.slug,
-  p.fullName,
-  p.shortDescription ?? "",
-  p.description ?? "",
-  p.price > 0 ? Math.round(p.price * 100) : "",
-  p.currency ?? "USD",
-  p.stock === "out" ? "false" : "true",
-  "",
-  p.category,
-  p.images.slice(0, 6).map((i) => i.src).join(", "),
-]);
+const row = (p) => ({
+  SKU: p.slug,
+  Name: p.fullName,
+  "Short description": p.shortDescription ?? "",
+  Description: p.description ?? "",
+  Price: Math.round(p.price * 100),
+  Currency: p.currency ?? "USD",
+  Available: p.stock === "out" ? "false" : "true",
+  "Category slug": p.category,
+  "Image URLs": p.images.slice(0, 6).map((i) => i.src).join(", "),
+});
 
-const out = join(root, "data/hader/organoli-products.csv");
-mkdirSync(dirname(out), { recursive: true });
-// BOM so Excel opens the UTF-8 file correctly (Arabic/accents, "–", "’").
-writeFileSync(out, "﻿" + [HEADERS, ...rows].map((r) => r.map(cell).join(",")).join("\r\n") + "\r\n");
+function write(file, headers, items) {
+  const out = join(root, "data/hader", file);
+  mkdirSync(dirname(out), { recursive: true });
+  const lines = [headers, ...items.map((p) => headers.map((h) => row(p)[h]))].map((r) => r.map(cell).join(","));
+  // BOM so Excel opens the UTF-8 file correctly ("–", "’", accents).
+  writeFileSync(out, "﻿" + lines.join("\r\n") + "\r\n");
+  return out;
+}
 
-const priced = rows.filter((r) => r[4] !== "").length;
-console.log(`Wrote ${rows.length} products to ${out}`);
-console.log(`  ${priced} priced · ${rows.length - priced} without a price · ${rows.filter((r) => r[6] === "true").length} available`);
+const priced = products.filter((p) => p.price > 0);
+const unpriced = products.filter((p) => !(p.price > 0));
+console.log(`Wrote ${priced.length} priced products → ${write("organoli-products.csv", HEADERS, priced)}`);
+console.log(`Wrote ${unpriced.length} products without a price → ${write("organoli-products-no-price.csv", HEADERS.filter((h) => h !== "Price"), unpriced)}`);
+console.log(`  ${products.filter((p) => p.stock !== "out").length} of ${products.length} marked available`);

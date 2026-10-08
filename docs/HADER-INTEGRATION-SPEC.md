@@ -182,17 +182,28 @@ On a product event it re-fetches that SKU from §3 (or deletes it); on `catalog_
 
 ---
 
-## 9. Nice to have
+## 9. Bug found during the first import
+
+`intish` in `apps/worker/src/jobs/shared-upsert.ts` accepts only digits, so an **empty** `Price` or `Stock` cell fails with `Invalid input` — although the template (`apps/api/src/modules/imports/template.ts`) says "Leave blank to set later". The first Organoli import failed on every row for this reason. Suggested fix: treat `''` (after trim) as `undefined` before validation, e.g.
+```ts
+const intish = z.preprocess(
+  (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+  z.union([z.number().int().nonnegative(), z.string().regex(/^\d+$/).transform(Number)]).nullable().optional(),
+);
+```
+Until then, the website's export omits the Stock column and puts unpriced products in a separate file without a Price column.
+
+## 10. Nice to have
 
 - **Import: an `Attributes` column** (JSON) so storefront facets (brand, goals, dietary, format, dose) can be bulk-loaded and edited in hader. Until then the website derives them from the product name and description.
 - **Per-area delivery fees** (Beirut / Mount Lebanon / North, South & Bekaa). `ShopFormLite` supports a flat fee + free-above threshold and per-country rules, not per-area.
 
 ---
 
-## 10. Organoli tenant setup (once the above ships)
+## 11. Organoli tenant setup (once the above ships)
 
 1. **API key** with `read:storefront`, `write:orders`, `read:orders` → given to the website as `HADER_API_KEY` (Vercel env, server-only), plus `HADER_API_URL`.
 2. **Webhook endpoint** as in §7 → signing secret given to the website as `HADER_WEBHOOK_SECRET`.
 3. **Shop form fields** with keys `address`, `area`, `payment`, `notes`; delivery fee and free-delivery threshold ($75 for Beirut today).
-4. **Products** — imported once from `data/hader/organoli-products.csv` (Catalog → Import → Products); SKU = website slug.
+4. **Products** — imported once from `data/hader/organoli-products.csv` and `organoli-products-no-price.csv` (Catalog → Import → Products); SKU = website slug.
 5. **WhatsApp bot** on +961 81 047 743, so bot orders and website orders share the same orders page.
