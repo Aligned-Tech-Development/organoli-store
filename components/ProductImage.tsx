@@ -36,6 +36,34 @@ export function ProductImage({
   );
 }
 
+/**
+ * Editorial photograph (public/images). `duotone` renders it in the brand's slate
+ * duotone (used for the hero and edits). Fills its positioned parent unless a
+ * className gives it its own size.
+ */
+export function Photo({
+  src,
+  alt = "",
+  sizes,
+  className = "absolute inset-0",
+  duotone = false,
+  priority = false,
+}: {
+  src: string;
+  alt?: string;
+  sizes: string;
+  className?: string;
+  duotone?: boolean;
+  priority?: boolean;
+}) {
+  return (
+    <span className={`block overflow-hidden ${/\b(absolute|fixed)\b/.test(className) ? "" : "relative"} ${className}`}>
+      <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className={`object-cover ${duotone ? "grayscale contrast-[1.08] brightness-[1.04]" : ""}`} />
+      {duotone && <span aria-hidden="true" className="absolute inset-0 bg-slate mix-blend-multiply" />}
+    </span>
+  );
+}
+
 /** Striped placeholder with a caption describing the photograph to commission. */
 export function Placeholder({
   caption,

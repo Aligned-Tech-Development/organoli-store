@@ -12,7 +12,7 @@ export const site = {
   dispatchCutoffHour: 16,
   timeZone: "Asia/Beirut",
   /** PLACEHOLDER — pharmacist shown across the site. */
-  pharmacist: { name: "Rana Haddad", firstName: "Rana", initials: "RH", title: "Founder · Pharmacist", credentials: "PharmD" },
+  pharmacist: { name: "Rana Haddad", firstName: "Rana", initials: "RH", title: "Founder · Pharmacist", credentials: "PharmD", avatar: "/images/pharmacist.jpg" },
   /** PLACEHOLDER — WhatsApp number in international format, digits only for links. */
   whatsapp: { display: "+961 3 123 123", digits: "9613123123" },
   email: "hello@organoli.com",

@@ -14,6 +14,7 @@ export interface Edit {
   dek: string;
   window: string;
   caption: string;
+  image: string;
   tone: "paper" | "slate" | "mint";
   foot: string;
   steps: EditStep[];
@@ -26,6 +27,7 @@ export const edits: Edit[] = [
     dek: "Four products, in the order you’d take them. Hydrate first, probiotic before food, vitamins with breakfast, protein when you need it.",
     window: "07:00–10:30",
     caption: "Lifestyle · morning kitchen, water glass, open window",
+    image: "/images/edit-morning.jpg",
     tone: "paper",
     foot: "Take with food unless noted. That is the whole instruction.",
     steps: [
@@ -41,6 +43,7 @@ export const edits: Edit[] = [
     dek: "An evening routine built around magnesium — the most-asked-about product at our counter — plus two quiet companions.",
     window: "20:00–21:30",
     caption: "Lifestyle · bedside, low lamp, linen, glass jar",
+    image: "/images/edit-sleep.jpg",
     tone: "slate",
     foot: "Not a sleep aid. Speak to us if you take sedatives.",
     steps: [
@@ -55,6 +58,7 @@ export const edits: Edit[] = [
     dek: "A probiotic for the flora, enzymes for heavy meals, and fibre for regularity — the short list our pharmacist recommends first.",
     window: "daily",
     caption: "Macro · psyllium, capsules, glass of water",
+    image: "/images/edit-gut.jpg",
     tone: "mint",
     foot: "Start one product at a time. Give it four weeks.",
     steps: [
@@ -85,9 +89,9 @@ export const curateSteps = [
 ];
 
 export const featuredBrands = [
-  { slug: "pure-encapsulations", origin: "Massachusetts, USA · hypoallergenic", why: "Clean formulas with no unnecessary fillers — the one we suggest for sensitivities.", caption: "Brand still · white bottles, hard light" },
-  { slug: "kiki-health", origin: "London, UK · organic & vegan", why: "Whole-food and organic ingredients, transparently sourced.", caption: "Brand still · pouches and raw ingredients" },
-  { slug: "seeking-health", origin: "Washington, USA · active nutrient forms", why: "Methylated and active B vitamins for people who need the ready-to-use forms.", caption: "Brand still · amber bottles on paper" },
+  { slug: "pure-encapsulations", image: "/images/brand-pure.jpg", origin: "Massachusetts, USA · hypoallergenic", why: "Clean formulas with no unnecessary fillers — the one we suggest for sensitivities.", caption: "Brand still · white bottles, hard light" },
+  { slug: "kiki-health", image: "/images/brand-kiki.jpg", origin: "London, UK · organic & vegan", why: "Whole-food and organic ingredients, transparently sourced.", caption: "Brand still · pouches and raw ingredients" },
+  { slug: "seeking-health", image: "/images/brand-seeking.jpg", origin: "Washington, USA · active nutrient forms", why: "Methylated and active B vitamins for people who need the ready-to-use forms.", caption: "Brand still · amber bottles on paper" },
 ];
 
 export interface Article {
@@ -96,17 +100,18 @@ export interface Article {
   title: string;
   dek: string;
   caption: string;
+  image: string;
   href: string;
   topics: string[];
 }
 
 export const articles: Article[] = [
-  { type: "Guide", minutes: 6, title: "Magnesium glycinate vs magnesium malate", dek: "Same mineral, different partner molecule. Glycinate is the evening form; malate suits the daytime. Here is how to choose — and when it doesn’t matter.", caption: "Macro · two magnesium powders side by side", href: "/search?q=magnesium", topics: ["magnesium", "sleep", "glycinate", "malate"] },
-  { type: "Guide", minutes: 5, title: "How to choose a probiotic", dek: "Strains, CFU and storage — the three things on the label that matter.", caption: "Macro · probiotic capsules", href: "/shop/probiotics", topics: ["probiotic", "gut", "cfu", "digestion"] },
-  { type: "Explainer", minutes: 4, title: "Understanding vitamin D dosage", dek: "IU, micrograms, and why most people in Lebanon are still low in winter.", caption: "Winter light · dropper bottle", href: "/search?q=vitamin%20d", topics: ["vitamin d", "d3", "immunity", "k2"] },
-  { type: "Glossary", minutes: 2, title: "What does CFU mean?", dek: "Colony-forming units, and why bigger isn’t automatically better.", caption: "Macro · capsule opened", href: "/shop/probiotics", topics: ["cfu", "probiotic"] },
-  { type: "Explainer", minutes: 3, title: "Why form matters more than milligrams", dek: "Glycinate, citrate, picolinate: the partner molecule changes what a mineral is good for.", caption: "Still · mineral forms on paper", href: "/shop/vitamins-minerals", topics: ["magnesium", "zinc", "form", "minerals"] },
-  { type: "Guide", minutes: 4, title: "Collagen: powder or capsules?", dek: "How much you actually need per day, and which format makes that easy.", caption: "Macro · collagen powder dissolving", href: "/shop/collagen-beauty", topics: ["collagen", "skin", "beauty"] },
+  { type: "Guide", minutes: 6, title: "Magnesium glycinate vs magnesium malate", image: "/images/article-magnesium.jpg", dek: "Same mineral, different partner molecule. Glycinate is the evening form; malate suits the daytime. Here is how to choose — and when it doesn’t matter.", caption: "Macro · two magnesium powders side by side", href: "/search?q=magnesium", topics: ["magnesium", "sleep", "glycinate", "malate"] },
+  { type: "Guide", minutes: 5, title: "How to choose a probiotic", image: "/images/article-probiotic.jpg", dek: "Strains, CFU and storage — the three things on the label that matter.", caption: "Macro · probiotic capsules", href: "/shop/probiotics", topics: ["probiotic", "gut", "cfu", "digestion"] },
+  { type: "Explainer", minutes: 4, title: "Understanding vitamin D dosage", image: "/images/article-vitamin-d.jpg", dek: "IU, micrograms, and why most people in Lebanon are still low in winter.", caption: "Winter light · dropper bottle", href: "/search?q=vitamin%20d", topics: ["vitamin d", "d3", "immunity", "k2"] },
+  { type: "Glossary", minutes: 2, title: "What does CFU mean?", image: "/images/article-cfu.jpg", dek: "Colony-forming units, and why bigger isn’t automatically better.", caption: "Macro · capsule opened", href: "/shop/probiotics", topics: ["cfu", "probiotic"] },
+  { type: "Explainer", minutes: 3, title: "Why form matters more than milligrams", image: "/images/article-form.jpg", dek: "Glycinate, citrate, picolinate: the partner molecule changes what a mineral is good for.", caption: "Still · mineral forms on paper", href: "/shop/vitamins-minerals", topics: ["magnesium", "zinc", "form", "minerals"] },
+  { type: "Guide", minutes: 4, title: "Collagen: powder or capsules?", image: "/images/article-collagen.jpg", dek: "How much you actually need per day, and which format makes that easy.", caption: "Macro · collagen powder dissolving", href: "/shop/collagen-beauty", topics: ["collagen", "skin", "beauty"] },
 ];
 
 export const articleMeta = (a: Article) => `${a.type} · ${a.minutes} min`;

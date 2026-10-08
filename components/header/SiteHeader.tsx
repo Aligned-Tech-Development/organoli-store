@@ -13,7 +13,7 @@ export function headerData(): HeaderData {
     totals: totalCounts(),
     trending: cardsFor(bestSellers).slice(0, 3),
     newProduct: newArrivals(1)[0] ?? null,
-    sleepEdit: { title: sleep.title, count: sleep.steps.length, caption: "evening still life · magnesium, lamp, linen" },
+    sleepEdit: { title: sleep.title, count: sleep.steps.length, caption: "evening still life · magnesium, lamp, linen", image: sleep.image },
   };
 }
 

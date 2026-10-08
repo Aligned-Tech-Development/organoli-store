@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Reveal } from "@/components/motion";
 import { pad2 } from "@/lib/format";
+import { Photo } from "@/components/ProductImage";
 
 const TONES = ["ph-slate text-paper", "ph-paper text-slate-text", "ph-mint text-ink"];
 
@@ -12,6 +13,7 @@ export interface GoalRow {
   name: string;
   ingredients: string;
   caption: string;
+  image: string;
   count: number;
 }
 
@@ -31,7 +33,11 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
         <div className="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4">
           {goals.map((x, i) => (
             <Link key={x.slug} href={`/shop?goal=${x.slug}`} className="flex w-[132px] flex-none snap-start flex-col gap-2 text-ink">
-              <span className={`flex aspect-[4/5] items-end p-2 font-display text-2xl font-medium leading-none ${TONES[i % 3]}`}>{x.name}</span>
+              <span className={`relative flex aspect-[4/5] items-end overflow-hidden p-2 font-display text-2xl font-medium leading-none text-paper ${TONES[i % 3]}`}>
+                <Photo src={x.image} sizes="132px" />
+                <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
+                <span className="relative">{x.name}</span>
+              </span>
               <span className="text-[10.5px] font-medium uppercase leading-[1.3] tracking-[.08em] text-slate-text">{x.ingredients}</span>
             </Link>
           ))}
@@ -59,7 +65,7 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
                   className={`absolute inset-0 flex items-end p-[18px] transition-[opacity,transform] duration-[500ms,1200ms] ease-[ease,cubic-bezier(.2,.7,.2,1)] ${TONES[i % 3]}`}
                   style={{ opacity: i === active ? 1 : 0, transform: i === active ? "scale(1)" : "scale(1.06)" }}
                 >
-                  <span className="caption text-[10.5px]">{x.caption}</span>
+                  <Photo src={x.image} alt={x.caption} sizes="(min-width:1024px) 40vw, 1px" />
                 </div>
               ))}
             </div>

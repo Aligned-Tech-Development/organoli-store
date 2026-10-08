@@ -12,6 +12,7 @@ import { MobileMenu, MobileSearch } from "./MobileOverlays";
 import { EmptyPanel, ResultsPanel } from "./SearchPanels";
 import type { HeaderData } from "./types";
 import { usePredictive } from "./usePredictive";
+import { Photo } from "../ProductImage";
 
 const NAV = [
   { label: "Shop", href: "/shop", mega: true },
@@ -303,7 +304,7 @@ function MegaMenu({ data, open, onNavigate }: { data: HeaderData; open: boolean;
           </div>
         </div>
         <Link href="/#the-edits" onClick={onNavigate} className="flex flex-col gap-3 text-ink">
-          <span className="ph-slate relative flex aspect-[4/5] items-end overflow-hidden p-3.5 font-mono text-[10px] font-medium uppercase leading-none tracking-[.06em] text-paper">{data.sleepEdit.caption}</span>
+          <Photo src={data.sleepEdit.image} sizes="20vw" duotone className="relative aspect-[4/5]" />
           <span className="text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">The edit · {data.sleepEdit.count} products</span>
           <span className="font-display text-[30px] font-medium leading-none">{data.sleepEdit.title} →</span>
         </Link>

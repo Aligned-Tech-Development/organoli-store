@@ -10,6 +10,7 @@ import { site, whatsappLink } from "@/content/site";
 import { badgeFor, compareSet, getProduct, getProducts, relatedProducts, toCard } from "@/lib/catalog";
 import { money, stockDot } from "@/lib/format";
 import { CATEGORY_BY_SLUG, GOAL_BY_SLUG } from "@/lib/taxonomy";
+import { Photo } from "@/components/ProductImage";
 
 type Params = Promise<{ slug: string }>;
 
@@ -176,7 +177,7 @@ export default async function ProductPage({ params }: { params: Params }) {
           />
           {extra.whyWeChose && (
             <div className="mt-1.5 flex items-start gap-3 bg-paper-shade p-4 lg:hidden">
-              <span aria-hidden="true" className="ph-avatar h-10 w-10 flex-none rounded-full" />
+              <Photo src={site.pharmacist.avatar} sizes="48px" className="h-10 w-10 flex-none rounded-full" />
               <span className="text-[14.5px] leading-[1.45]">
                 <strong className="font-semibold">Why we chose it.</strong> {extra.whyWeChose.quote} — {site.pharmacist.firstName}, pharmacist
               </span>
@@ -202,7 +203,7 @@ export default async function ProductPage({ params }: { params: Params }) {
             <div className="flex flex-col gap-8">
               <blockquote className="m-0 font-display text-[42px] font-medium leading-[1.1] [text-wrap:pretty]">“{extra.whyWeChose.quote}”</blockquote>
               <div className="flex items-center gap-3.5">
-                <span aria-hidden="true" className="ph-avatar h-12 w-12 rounded-full" />
+                <Photo src={site.pharmacist.avatar} sizes="48px" className="h-12 w-12 flex-none rounded-full" />
                 <span className="flex flex-col gap-1">
                   <span className="text-[15px] font-semibold leading-none">{site.pharmacist.name}</span>
                   <span className="text-[11px] font-medium uppercase leading-none tracking-[.14em] text-slate-text">{site.pharmacist.title}</span>

@@ -6,6 +6,7 @@ import { Reveal } from "@/components/motion";
 import { money } from "@/lib/format";
 import { useCart } from "@/lib/store";
 import type { CardProduct } from "@/lib/types";
+import { Photo } from "@/components/ProductImage";
 
 export interface EditView {
   tab: string;
@@ -13,6 +14,7 @@ export interface EditView {
   dek: string;
   meta: string;
   caption: string;
+  image: string;
   tone: "paper" | "slate" | "mint";
   foot: string;
   steps: { time: string; label: string; p: CardProduct }[];
@@ -73,7 +75,7 @@ export function Edits({ edits }: { edits: EditView[] }) {
               className={`absolute inset-0 flex items-end p-6 transition-[opacity,transform] duration-[700ms,1400ms] ease-[ease,cubic-bezier(.2,.7,.2,1)] ${TONE[x.tone]}`}
               style={{ opacity: i === active ? 1 : 0, transform: i === active ? "scale(1)" : "scale(1.05)" }}
             >
-              <span className="caption text-[10.5px]">{x.caption}</span>
+              <Photo src={x.image} alt={x.caption} sizes="(min-width:1024px) 55vw, 100vw" duotone={x.tone === "slate"} />
             </div>
           ))}
           <span className="absolute left-4 top-4 bg-paper px-3 py-2 text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] lg:left-6 lg:top-6">{e.meta}</span>

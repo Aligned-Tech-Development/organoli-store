@@ -81,7 +81,7 @@ export function goalCounts() {
   return GOALS.map((g) => {
     const items = products.filter((p) => p.goals.includes(g.slug));
     const cover = sortProducts(items.filter((p) => p.images.length), "rec", rank)[0];
-    return { ...g, count: items.length, image: cover?.images[0] ?? null };
+    return { ...g, count: items.length, cover: cover?.images[0] ?? null };
   });
 }
 

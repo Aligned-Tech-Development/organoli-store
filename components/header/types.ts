@@ -6,5 +6,5 @@ export interface HeaderData {
   totals: { products: number; brands: number };
   trending: CardProduct[];
   newProduct: CardProduct | null;
-  sleepEdit: { title: string; count: number; caption: string };
+  sleepEdit: { title: string; count: number; caption: string; image: string };
 }

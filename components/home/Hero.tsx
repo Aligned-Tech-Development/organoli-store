@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { site, whatsappLink } from "@/content/site";
 import { money } from "@/lib/format";
+import { Photo } from "@/components/ProductImage";
 
 export interface HeroProduct {
   slug: string;
@@ -69,7 +70,7 @@ export function Hero({ headline, product }: { headline: string; product: HeroPro
           </div>
         </div>
         <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="mt-10 hidden max-w-[440px] items-center gap-3.5 border-t border-hairline pt-5 text-ink lg:flex">
-          <span aria-hidden="true" className="ph-avatar h-11 w-11 flex-none rounded-full" />
+          <Photo src={site.pharmacist.avatar} sizes="48px" className="h-11 w-11 flex-none rounded-full" />
           <span className="flex flex-col gap-1">
             <span className="text-[15px] font-medium leading-[1.3]">Not sure what you need? Ask {site.pharmacist.firstName}, our pharmacist.</span>
             <span className="text-[11px] font-medium uppercase leading-none tracking-[.14em] text-slate-text">WhatsApp · replies within the hour</span>
@@ -78,17 +79,14 @@ export function Hero({ headline, product }: { headline: string; product: HeroPro
       </div>
 
       <div className="relative mt-[22px] aspect-[4/5] overflow-hidden bg-slate lg:mt-0 lg:aspect-auto">
-        <div ref={img} className="ph-slate absolute inset-x-0 -inset-y-10 will-change-transform" aria-hidden="true" />
+        <div ref={img} className="absolute inset-x-0 -inset-y-10 will-change-transform" aria-hidden="true">
+          <Photo src="/images/hero-dropper.jpg" sizes="(min-width:1024px) 58vw, 100vw" duotone priority />
+        </div>
         {(["left-5 top-[18px]", "right-5 top-[18px]", "bottom-[18px] right-5"] as const).map((pos) => (
           <span key={pos} aria-hidden="true" className={`absolute hidden text-[22px] font-light leading-none text-paper/80 lg:block ${pos}`}>
             +
           </span>
         ))}
-        <span className="caption absolute left-4 top-4 text-[9.5px] text-paper lg:left-auto lg:right-14 lg:top-14 lg:max-w-[300px] lg:text-right lg:text-[10.5px] lg:leading-normal">
-          Hero photograph · duotone slate
-          <br className="hidden lg:block" />
-          <span className="hidden lg:inline">morning light, kitchen counter, hand reaching for a jar</span>
-        </span>
 
         {product && (
           <>

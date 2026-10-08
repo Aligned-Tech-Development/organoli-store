@@ -6,6 +6,7 @@ import { parseFilters } from "@/lib/filters";
 import { CATEGORY_BY_SLUG, GOAL_BY_SLUG } from "@/lib/taxonomy";
 import type { CategorySlug, GoalSlug } from "@/lib/types";
 import { ShopShell } from "./ShopShell";
+import { Photo } from "@/components/ProductImage";
 
 type SP = Record<string, string | string[] | undefined>;
 
@@ -58,7 +59,7 @@ export function ShopPage({ category, searchParams }: { category: CategorySlug | 
             <p className="m-0 hidden max-w-[560px] text-[19px] leading-normal lg:block">{intro}</p>
           </div>
           <div className="hidden items-start gap-4 border border-hairline p-[18px] lg:flex">
-            <span aria-hidden="true" className="ph-avatar h-12 w-12 flex-none rounded-full" />
+            <Photo src={site.pharmacist.avatar} sizes="48px" className="h-12 w-12 flex-none rounded-full" />
             <div className="flex flex-col gap-2">
               <span className="text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">Pharmacist’s note · {site.pharmacist.name}</span>
               <span className="text-[15px] leading-[1.45]">“{note.note}”</span>

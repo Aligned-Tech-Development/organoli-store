@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CountUp, DrawRule, Reveal } from "@/components/motion";
-import { Placeholder } from "@/components/ProductImage";
+import { Photo } from "@/components/ProductImage";
 import { Edits, type EditView } from "@/components/home/Edits";
 import { Essentials } from "@/components/home/Essentials";
 import { Favourites } from "@/components/home/Favourites";
@@ -48,6 +48,7 @@ export default function HomePage() {
     dek: e.dek,
     meta: `The edit · ${e.steps.length} products · ${e.window}`,
     caption: e.caption,
+    image: e.image,
     tone: e.tone,
     foot: e.foot,
     steps: e.steps.flatMap((s) => {
@@ -120,7 +121,7 @@ export default function HomePage() {
         ]}
       />
 
-      <GoalIndex goals={goalCounts().map(({ slug, name, ingredients, caption, count }) => ({ slug, name, ingredients, caption, count }))} />
+      <GoalIndex goals={goalCounts().map(({ slug, name, ingredients, caption, image, count }) => ({ slug, name, ingredients, caption, image, count }))} />
 
       <Edits edits={editViews} />
 
@@ -166,7 +167,7 @@ export default function HomePage() {
             </h2>
           </Reveal>
           <Reveal className="hidden flex-col gap-5 lg:flex">
-            <Placeholder caption="Stockroom, Beirut · pharmacist checking batch numbers" className="aspect-[3/2] rounded-sm" />
+            <Photo src="/images/curate-pharmacy.jpg" alt="Pharmacist checking stock on the shelf" sizes="40vw" className="aspect-[3/2] rounded-sm" />
             <p className="m-0 text-[17px] leading-[1.55]">We start from the ingredient and the evidence, not the brand’s marketing. Then we check every batch again when it lands.</p>
           </Reveal>
         </div>
@@ -227,7 +228,7 @@ export default function HomePage() {
             return (
               <Reveal key={fb.slug}>
                 <Link href={`/shop?brand=${b.slug}`} className="flex h-full flex-col gap-4 border border-hairline bg-paper px-4 pb-[22px] pt-4 text-ink transition-colors duration-[250ms] hover:border-ink">
-                  <Placeholder caption={fb.caption} className="aspect-[3/2]" />
+                  <Photo src={fb.image} sizes="30vw" className="aspect-[3/2]" />
                   <span className="flex items-baseline justify-between">
                     <span className="font-display text-4xl font-medium leading-none">{b.name}</span>
                     <span className="text-[13px] font-medium leading-none text-slate-text">{b.productCount} products</span>
@@ -260,7 +261,7 @@ export default function HomePage() {
         <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[7fr_5fr] lg:gap-14">
           <Reveal>
             <Link href={articles[0].href} className="flex flex-col gap-5 text-ink">
-              <Placeholder caption={articles[0].caption} tone="slate" className="aspect-[4/3] rounded-sm p-[18px]" />
+              <Photo src={articles[0].image} alt={articles[0].caption} sizes="(min-width:1024px) 55vw, 100vw" className="aspect-[4/3] rounded-sm" />
               <span className="label text-slate-text">
                 {articleMeta(articles[0])} · Reviewed by {site.pharmacist.name}, {site.pharmacist.credentials}
               </span>
@@ -277,7 +278,7 @@ export default function HomePage() {
                     <span className="font-display text-[26px] font-medium leading-none lg:text-[30px]">{a.title}</span>
                     <span className="text-[15px] leading-[1.45] text-slate-text">{a.dek}</span>
                   </span>
-                  <Placeholder className="aspect-square rounded-sm" />
+                  <Photo src={a.image} sizes="140px" className="aspect-square self-start rounded-sm" />
                 </Link>
               </Reveal>
             ))}

@@ -9,6 +9,7 @@ import { money } from "@/lib/format";
 import type { Predictive } from "@/lib/catalog";
 import type { CardProduct } from "@/lib/types";
 import { articlesFor, splitHit } from "./usePredictive";
+import { Photo } from "../ProductImage";
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <span className="text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">{children}</span>
@@ -124,7 +125,7 @@ export function ResultsPanel({ q, data, onNavigate }: { q: string; data: Predict
         <Label>From Learn</Label>
         {arts.map((a) => (
           <Link key={a.title} href={a.href} onClick={onNavigate} className="flex flex-col gap-2 text-ink">
-            <span className="flex aspect-video items-end bg-[repeating-linear-gradient(135deg,#D9D6CF_0_8px,#D2CFC7_8px_16px)] p-2 font-mono text-[9.5px] font-medium uppercase leading-none tracking-[.06em] text-slate-text">editorial still</span>
+            <Photo src={a.image} sizes="230px" className="aspect-video" />
             <span className="font-display text-[21px] font-medium leading-[1.05]">{a.title}</span>
             <span className="text-[11px] font-medium uppercase leading-none tracking-[.12em] text-slate-text">{articleMeta(a)}</span>
           </Link>

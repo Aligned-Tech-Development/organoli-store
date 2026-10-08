@@ -27,19 +27,20 @@ export interface GoalMeta {
   name: string;
   ingredients: string;
   caption: string;
+  image: string;
 }
 
 export const GOALS: GoalMeta[] = [
-  { slug: "gut-health", name: "Gut Health", ingredients: "Probiotics · enzymes · fibre", caption: "Macro · probiotic capsules on linen" },
-  { slug: "sleep", name: "Sleep", ingredients: "Magnesium · glycine · L-theanine", caption: "Evening still life · bedside, low lamp" },
-  { slug: "energy", name: "Energy", ingredients: "B vitamins · iron · CoQ10", caption: "Morning run, coastal road, Beirut" },
-  { slug: "immunity", name: "Immunity", ingredients: "Vitamin D3 · zinc · vitamin C", caption: "Citrus, zinc tablets, winter light" },
-  { slug: "stress", name: "Stress", ingredients: "Ashwagandha · magnesium · rhodiola", caption: "Hands around a warm cup" },
-  { slug: "womens-health", name: "Women's Health", ingredients: "Iron · folate · omega-3", caption: "Portrait, natural light, studio" },
-  { slug: "hormonal-support", name: "Hormonal Support", ingredients: "Inositol · vitex · DIM", caption: "Still life · capsules and a notebook" },
-  { slug: "skin-beauty", name: "Skin & Beauty", ingredients: "Collagen · hyaluronic acid · zinc", caption: "Macro · collagen powder dissolving" },
-  { slug: "performance", name: "Performance", ingredients: "Creatine · protein · electrolytes", caption: "Gym floor, chalked hands, shaker" },
-  { slug: "daily-essentials", name: "Daily Essentials", ingredients: "Multivitamin · D3 · omega-3", caption: "Breakfast table, weekly pill box" },
+  { slug: "gut-health", name: "Gut Health", ingredients: "Probiotics · enzymes · fibre", caption: "Macro · probiotic capsules on linen", image: "/images/goal-gut.jpg" },
+  { slug: "sleep", name: "Sleep", ingredients: "Magnesium · glycine · L-theanine", caption: "Evening still life · bedside, low lamp", image: "/images/goal-sleep.jpg" },
+  { slug: "energy", name: "Energy", ingredients: "B vitamins · iron · CoQ10", caption: "Morning run, coastal road, Beirut", image: "/images/goal-energy.jpg" },
+  { slug: "immunity", name: "Immunity", ingredients: "Vitamin D3 · zinc · vitamin C", caption: "Citrus, zinc tablets, winter light", image: "/images/goal-immunity.jpg" },
+  { slug: "stress", name: "Stress", ingredients: "Ashwagandha · magnesium · rhodiola", caption: "Hands around a warm cup", image: "/images/goal-stress.jpg" },
+  { slug: "womens-health", name: "Women's Health", ingredients: "Iron · folate · omega-3", caption: "Portrait, natural light, studio", image: "/images/goal-womens.jpg" },
+  { slug: "hormonal-support", name: "Hormonal Support", ingredients: "Inositol · vitex · DIM", caption: "Still life · capsules and a notebook", image: "/images/goal-hormonal.jpg" },
+  { slug: "skin-beauty", name: "Skin & Beauty", ingredients: "Collagen · hyaluronic acid · zinc", caption: "Macro · collagen powder dissolving", image: "/images/goal-skin.jpg" },
+  { slug: "performance", name: "Performance", ingredients: "Creatine · protein · electrolytes", caption: "Gym floor, chalked hands, shaker", image: "/images/goal-performance.jpg" },
+  { slug: "daily-essentials", name: "Daily Essentials", ingredients: "Multivitamin · D3 · omega-3", caption: "Breakfast table, weekly pill box", image: "/images/goal-daily.jpg" },
 ];
 
 export const GOAL_BY_SLUG = Object.fromEntries(GOALS.map((g) => [g.slug, g])) as Record<GoalSlug, GoalMeta>;
