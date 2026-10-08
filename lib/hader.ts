@@ -13,6 +13,17 @@ import { CATEGORY_SLUGS, normalizeProducts, slugify, type RawProduct } from "./n
 import type { Brand, Product } from "./types";
 
 export const CATALOG_TAG = "hader-catalog";
+
+/**
+ * hader serves photos through signed storage links that expire after an hour, so
+ * pages never embed them directly. Each photo gets a stable website URL
+ * (/api/hader/img/<productId>?v=<photo id>) that redirects to the current signed
+ * link; `v` changes when the photo is replaced in hader, so caches refresh too.
+ */
+const imagePath = (productId: string, signedUrl: string) => {
+  const version = new URL(signedUrl).pathname.split("/").pop() ?? "1";
+  return `/api/hader/img/${encodeURIComponent(productId)}?v=${encodeURIComponent(version)}`;
+};
 export const CATALOG_REVALIDATE_SECONDS = 300;
 
 interface ReadApiProduct {
@@ -60,7 +71,9 @@ async function fetchGroup(base: string, key: string, category: string, available
  * doesn't expose yet (extra photos, dietary tags, original ids for "New" ordering).
  * Returns null when hader isn't configured or can't be reached.
  */
-export async function loadHaderCatalog(builtIn: Product[]): Promise<{ products: Product[]; brands: Brand[] } | null> {
+export async function loadHaderCatalog(
+  builtIn: Product[],
+): Promise<{ products: Product[]; brands: Brand[]; imageUrls: Map<string, string> } | null> {
   const cfg = config();
   if (!cfg) return null;
   try {
@@ -70,12 +83,14 @@ export async function loadHaderCatalog(builtIn: Product[]): Promise<{ products: 
     const known = new Map(builtIn.map((p) => [p.slug, p]));
     const seen = new Set<string>();
     const raws: RawProduct[] = [];
+    const imageUrls = new Map<string, string>();
     let newIndex = 0;
 
     for (const { category, rows } of groups) {
       for (const r of rows) {
         if (seen.has(r.id)) continue;
         seen.add(r.id);
+        if (r.imageUrl) imageUrls.set(r.id, r.imageUrl);
         // SKU = website slug for imported products; new hader products use hader's slug.
         const prev = known.get(r.sku.toLowerCase());
         const slug = prev?.slug ?? (r.slug || slugify(r.sku));
@@ -92,7 +107,7 @@ export async function loadHaderCatalog(builtIn: Product[]): Promise<{ products: 
           compareAt: prev?.compareAt ?? null,
           currency: r.currency,
           inStock: r.available,
-          images: r.imageUrl ? [{ src: r.imageUrl, alt: r.name }, ...extraPhotos] : (prev?.images ?? []),
+          images: r.imageUrl ? [{ src: imagePath(r.id, r.imageUrl), alt: r.name }, ...extraPhotos] : (prev?.images ?? []),
           sourceCategories: [
             ...(prev?.sourceCategories ?? []).map((name) => ({ slug: slugify(name), name })),
             { slug: category, name: r.categoryName ?? category },
@@ -107,7 +122,7 @@ export async function loadHaderCatalog(builtIn: Product[]): Promise<{ products: 
       console.warn("[hader] catalogue came back empty — using the built-in catalogue.");
       return null;
     }
-    return normalizeProducts(raws);
+    return { ...normalizeProducts(raws), imageUrls };
   } catch (e) {
     console.error("[hader] catalogue fetch failed — using the built-in catalogue.", e);
     return null;

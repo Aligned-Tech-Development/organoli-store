@@ -6,7 +6,10 @@ import NextImage, { type ImageProps } from "next/image";
 const OPTIMISED_HOSTS = ["organoli.com"];
 
 function optimisable(src: ImageProps["src"]) {
-  if (typeof src !== "string" || !/^https?:\/\//.test(src)) return true;
+  if (typeof src !== "string") return true;
+  // hader photo redirects (/api/hader/img/…) — the browser follows them directly.
+  if (src.startsWith("/api/")) return false;
+  if (!/^https?:\/\//.test(src)) return true;
   try {
     const host = new URL(src).hostname;
     return OPTIMISED_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));

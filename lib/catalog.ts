@@ -39,7 +39,11 @@ export class Catalog {
   private newSlugs: Set<string>;
   private searchIndex: { p: Product; name: string; brand: string; ingredients: string; meta: string; text: string }[];
 
-  constructor(products: Product[], brands: Brand[], source: "hader" | "built-in") {
+  /** hader product id → current signed photo URL (see lib/hader.ts). */
+  readonly haderImages: Map<string, string>;
+
+  constructor(products: Product[], brands: Brand[], source: "hader" | "built-in", haderImages = new Map<string, string>()) {
+    this.haderImages = haderImages;
     this.products = products;
     this.brands = brands;
     this.source = source;
@@ -255,7 +259,7 @@ export const builtInProducts = () => builtIn.products;
 /** The live catalogue for this request. Never throws: falls back to the built-in data. */
 export const getCatalog = cache(async (): Promise<Catalog> => {
   const live = await loadHaderCatalog(builtIn.products);
-  return live ? new Catalog(live.products, live.brands, "hader") : builtInCatalog;
+  return live ? new Catalog(live.products, live.brands, "hader", live.imageUrls) : builtInCatalog;
 });
 
 export { FILTER_KEYS };
