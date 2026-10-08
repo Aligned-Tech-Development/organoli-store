@@ -38,7 +38,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
 
   const searchOpen = overlay === "search";
   const megaOpen = overlay === "mega";
-  const compact = useCompactHeader(searchOpen || megaOpen);
+  const compact = useCompactHeader();
   const activeInput = () => (compact ? compactInputRef.current : inputRef.current);
 
   // Close overlays on navigation
@@ -243,7 +243,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
         />
       </header>
 
-      {/* Desktop compact bar — slides in when scrolling back up */}
+      {/* Desktop compact bar — sticks once the full header scrolls away */}
       <div
         className={`fixed inset-x-0 top-0 z-[65] hidden font-sans text-ink transition-transform duration-300 ease-out lg:block ${compact ? "translate-y-0" : "-translate-y-[110%]"}`}
         aria-hidden={!compact}
@@ -449,35 +449,23 @@ function MegaMenu({ data, open, onNavigate }: { data: HeaderData; open: boolean;
 }
 
 /**
- * Desktop compact header: hidden while the full header is on screen or while
- * scrolling down; shown as soon as the user scrolls back up. Publishes its
- * height as --hdr on <html> so other sticky bars can sit beneath it.
+ * Desktop compact header: shown whenever the full header has scrolled out of
+ * view, hidden again at the top of the page. Publishes its height as --hdr on
+ * <html> so other sticky bars can sit beneath it.
  */
-function useCompactHeader(lock: boolean) {
+function useCompactHeader() {
   const [visible, setVisible] = useState(false);
-  const lockRef = useRef(lock);
-  useEffect(() => {
-    lockRef.current = lock;
-  }, [lock]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
-    let lastY = window.scrollY;
-    let raf = 0;
     const FULL_HEADER = 170;
-    const update = () => {
-      const y = window.scrollY;
-      if (!mq.matches || y <= FULL_HEADER) setVisible(false);
-      else if (!lockRef.current) {
-        if (y < lastY - 6) setVisible(true);
-        else if (y > lastY + 6) setVisible(false);
-      }
-      lastY = y;
-    };
+    let raf = 0;
+    const update = () => setVisible(mq.matches && window.scrollY > FULL_HEADER);
     const onScroll = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(update);
     };
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     mq.addEventListener("change", update);
     return () => {
