@@ -82,7 +82,9 @@ export function HeaderClient({ data }: { data: HeaderData }) {
   const searchPanel = (show: boolean, ref: React.RefObject<HTMLInputElement | null>) => (
     <div
       id={ref === inputRef ? "search-panel" : "search-panel-compact"}
-      className={`absolute left-1/2 top-[calc(100%+10px)] z-[5] w-[min(1000px,calc(100vw-96px))] -translate-x-1/2 border border-hairline bg-paper shadow-search transition-[opacity,transform] duration-[240ms] ease-out ${
+      className={`absolute top-[calc(100%+10px)] z-[5] w-[min(1000px,calc(100vw-96px))] border border-hairline bg-paper shadow-search transition-[opacity,transform] duration-[240ms] ease-out ${
+        ref === inputRef ? "left-1/2 -translate-x-1/2" : "right-0"
+      } ${
         show ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-1.5 opacity-0"
       }`}
       aria-hidden={!show}
