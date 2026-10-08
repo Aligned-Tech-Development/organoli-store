@@ -1,0 +1,4 @@
+.env*
+.clerk
+.next
+node_modules
