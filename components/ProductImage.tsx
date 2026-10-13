@@ -4,9 +4,11 @@ import type { ProductImage as Img } from "@/lib/types";
 /** Shown when a product has no photo in hader: the Organoli "+" on the paper tone. */
 export function NoProductPhoto({ className = "" }: { className?: string }) {
   return (
-    <div className={`ph-paper absolute inset-0 flex items-center justify-center ${className}`}>
-      <span aria-hidden="true" className="flex aspect-square w-[22%] max-w-[88px] items-center justify-center rounded-full bg-mint/60 text-[clamp(20px,5vw,48px)] font-medium leading-none text-ink">
-        +
+    <div className={`absolute inset-0 flex items-center justify-center bg-paper-shade ${className}`}>
+      <span aria-hidden="true" className="flex aspect-square w-[22%] max-w-[96px] items-center justify-center rounded-full bg-mint/70 text-ink">
+        <svg viewBox="0 0 24 24" className="h-1/2 w-1/2" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <path d="M12 4v16M4 12h16" />
+        </svg>
       </span>
     </div>
   );

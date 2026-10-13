@@ -27,7 +27,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return {
     title,
     description: p.shortDescription ?? p.purpose ?? `${title} — pharmacist-curated and in stock in Beirut.`,
-    openGraph: { title, images: p.images[0] ? [{ url: p.images[0].src }] : [] },
+    // Without a photo, leave images unset so the site-wide share image applies.
+    openGraph: { title, ...(p.images[0] ? { images: [{ url: p.images[0].src }] } : {}) },
   };
 }
 
