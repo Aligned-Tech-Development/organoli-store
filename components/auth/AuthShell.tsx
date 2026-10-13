@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Photo } from "@/components/ProductImage";
+import { PharmacistMark } from "@/components/PharmacistMark";
 import { site, whatsappLink } from "@/content/site";
 import { DeviceStub } from "./DeviceStub";
 
@@ -44,7 +44,7 @@ export function AuthShell({ mode, children }: { mode: Mode; children: React.Reac
         <h1 className="m-0 font-display text-[60px] font-medium leading-[.86] tracking-[-.015em] lg:text-[clamp(88px,8vw,128px)]">{c.title}</h1>
         <p className="m-0 max-w-[460px] text-base leading-[1.55] lg:text-lg">{c.lede}</p>
         <div className="mt-4 hidden max-w-[460px] items-center gap-3.5 border-t border-hairline pt-5 lg:flex">
-          <Photo src={site.pharmacist.avatar} sizes="44px" className="h-11 w-11 flex-none rounded-full" />
+          <PharmacistMark />
           <span className="flex flex-col gap-1">
             <span className="text-[15px] font-medium leading-[1.35]">An account is optional. Checkout works without one — your order goes straight to our pharmacist.</span>
             <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium uppercase leading-none tracking-[.14em] text-slate-text hover:text-ink">

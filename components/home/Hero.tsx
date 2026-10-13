@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { site, whatsappLink } from "@/content/site";
 import { money } from "@/lib/format";
 import { Photo } from "@/components/ProductImage";
+import { PharmacistMark } from "@/components/PharmacistMark";
 
 export interface HeroProduct {
   slug: string;
@@ -70,9 +71,9 @@ export function Hero({ headline, product }: { headline: string; product: HeroPro
           </div>
         </div>
         <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="mt-10 hidden max-w-[440px] items-center gap-3.5 border-t border-hairline pt-5 text-ink lg:flex">
-          <Photo src={site.pharmacist.avatar} sizes="48px" className="h-11 w-11 flex-none rounded-full" />
+          <PharmacistMark />
           <span className="flex flex-col gap-1">
-            <span className="text-[15px] font-medium leading-[1.3]">Not sure what you need? Ask {site.pharmacist.firstName}, our pharmacist.</span>
+            <span className="text-[15px] font-medium leading-[1.3]">Not sure what you need? Ask our pharmacist.</span>
             <span className="text-[11px] font-medium uppercase leading-none tracking-[.14em] text-slate-text">WhatsApp · replies within the hour</span>
           </span>
         </a>
@@ -122,7 +123,7 @@ export function Hero({ headline, product }: { headline: string; product: HeroPro
                   <span aria-hidden="true" className="flex h-4 w-4 items-center justify-center rounded-full bg-mint text-xs">
                     +
                   </span>
-                  Checked · {site.pharmacist.initials}
+                  Pharmacist checked
                 </span>
               </span>
             </Link>

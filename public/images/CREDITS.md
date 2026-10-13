@@ -30,6 +30,5 @@ Editorial photography (not product shots) is from Unsplash, used under the Unspl
 | article-form.jpg | https://unsplash.com/photos/UaO58q6ioxI |
 | article-collagen.jpg | https://unsplash.com/photos/aX4lfNhuCH4 |
 | routine-performance.jpg | https://unsplash.com/photos/-1W7mesKxYg |
-| pharmacist.jpg | images.unsplash.com/photo-1532938911079-1b06ac7ceec7 |
 
 Replace with commissioned photography when available — keep the same file names and nothing else needs to change.

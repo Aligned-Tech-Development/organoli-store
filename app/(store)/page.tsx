@@ -264,7 +264,7 @@ export default async function HomePage() {
             <Link href={articles[0].href} className="flex flex-col gap-5 text-ink">
               <Photo src={articles[0].image} alt={articles[0].caption} sizes="(min-width:1024px) 55vw, 100vw" className="aspect-[4/3] rounded-sm" />
               <span className="label text-slate-text">
-                {articleMeta(articles[0])} · Reviewed by {site.pharmacist.name}, {site.pharmacist.credentials}
+                {articleMeta(articles[0])} · Reviewed by our pharmacist
               </span>
               <span className="font-display text-[40px] font-medium leading-[.95] lg:text-[54px]">{articles[0].title}</span>
               <span className="max-w-[620px] text-base leading-[1.55] lg:text-lg">{articles[0].dek}</span>
@@ -310,7 +310,7 @@ function DispensingLabel({ catalog }: { catalog: Catalog }) {
         <span>Batch logged · received in {site.city}</span>
         <span className="flex items-center gap-1.5">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-mint text-sm">+</span>
-          Checked · {site.pharmacist.initials}
+          Pharmacist checked
         </span>
       </div>
     </div>

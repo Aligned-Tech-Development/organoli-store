@@ -3,7 +3,7 @@ import { Barlow, Barlow_Condensed } from "next/font/google";
 import { CartDrawer } from "@/components/CartDrawer";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { StoreHydrator } from "@/components/Providers";
-import { site } from "@/content/site";
+import { isDemoHost, siteUrl } from "@/content/site";
 import { bestSellers, pharmacistPicks } from "@/content/merchandising";
 import { getCatalog } from "@/lib/catalog";
 import "./globals.css";
@@ -15,10 +15,11 @@ const barlow = Barlow({ subsets: ["latin"], weight: ["400", "500", "600"], varia
 const barlowCondensed = Barlow_Condensed({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-barlow-condensed", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? site.url),
+  metadataBase: new URL(siteUrl),
   title: { default: "Organoli — The shelf people trust", template: "%s · Organoli" },
   description: "Pharmacist-curated supplements in Beirut. Every product checked on arrival and listed with its full specification — dose, form and what it is for.",
   openGraph: { siteName: "Organoli", type: "website", locale: "en_LB" },
+  ...(isDemoHost ? { robots: { index: false, follow: false } } : {}),
 };
 
 export const viewport: Viewport = { themeColor: "#F2F1ED" };

@@ -5,9 +5,9 @@ import { FooterAccordion } from "./FooterAccordion";
 const COLS: { h: string; l: [string, string][] }[] = [
   { h: "Shop", l: [["All products", "/shop"], ["Shop by goal", "/#shop-by-goal"], ["Brands A–Z", "/brands"], ["New on the shelf", "/shop?sort=new"], ["Wishlist", "/wishlist"]] },
   { h: "Help", l: [["Find your routine", "/routine"], ["Ask a pharmacist", whatsappLink()], ["Returns", whatsappLink("Hello, I'd like to return an item.")], ["Track an order", whatsappLink("Hello, I'd like to track my order.")], ["Search", "/search"]] },
-  { h: "Organoli", l: [["How we curate", "/#how-we-curate"], ["Learn", "/#learn"], ["Our counter", "/#why-organoli"], ["For practitioners", `mailto:${site.email}`]] },
+  { h: "Organoli", l: [["How we curate", "/#how-we-curate"], ["Learn", "/#learn"], ["Why Organoli", "/#why-organoli"], ["For practitioners", `mailto:${site.email}`]] },
   { h: "Delivery", l: site.deliveryZones.map((z) => [`${z.zone} — ${z.time}`, "/#why-organoli"] as [string, string]) },
-  { h: "Social", l: [...site.social.map((s) => [s.label, s.href] as [string, string]), ["Weekly letter", "/#newsletter"]] },
+  { h: site.social.length ? "Social" : "Stay in touch", l:[...site.social.map((s) => [s.label, s.href] as [string, string]), ["Weekly letter", "/#newsletter"]] },
 ];
 
 const FooterLink = ({ label, href, className }: { label: string; href: string; className: string }) =>
@@ -29,11 +29,11 @@ export function SiteFooter() {
       <div className="hidden px-12 pb-8 pt-[72px] lg:block">
         <div className="grid grid-cols-[1.4fr_repeat(5,minmax(0,1fr))] gap-10 border-b border-paper/20 pb-14">
           <div className="flex flex-col gap-[18px]">
-            <span className="label text-mint">The counter</span>
+            <span className="label text-mint">Ask a pharmacist</span>
             <p className="m-0 max-w-[300px] text-base leading-[1.55]">
-              {site.counter.address}. Open {site.counter.hours}. A pharmacist answers every message — usually within the hour.
+              Ordered online, delivered across Lebanon. A pharmacist answers every message — usually within the hour.
             </p>
-            <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center self-start rounded-sm border border-paper/40 px-[18px] text-xs font-semibold uppercase leading-none tracking-[.14em] hover:border-mint hover:text-mint">
+            <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center self-start whitespace-nowrap rounded-sm border border-paper/40 px-[18px] text-xs font-semibold uppercase leading-none tracking-[.14em] hover:border-mint hover:text-mint">
               WhatsApp {site.whatsapp.display}
             </a>
           </div>
@@ -62,7 +62,7 @@ export function SiteFooter() {
       <div className="flex flex-col px-4 pb-[110px] pt-7 lg:hidden">
         <FooterAccordion cols={COLS} />
         <span className="pt-6 text-[13.5px] leading-normal text-mist">
-          {site.counter.address} · {site.counter.hoursShort} · WhatsApp {site.whatsapp.display}
+          Delivered across Lebanon · WhatsApp {site.whatsapp.display}
         </span>
         <span className="pt-4 text-xs leading-normal text-slate-300">{disclaimer}</span>
         <span className="pt-5 font-display text-[64px] font-semibold uppercase leading-[.8] tracking-[.04em]" aria-hidden="true">

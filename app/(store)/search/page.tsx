@@ -20,7 +20,7 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
   const catalog = await getCatalog();
   const q = (sp.q ?? "").trim().slice(0, 80);
   const sort = (["lo", "hi", "new"].includes(sp.sort ?? "") ? sp.sort : "rec") as Sort;
-  const found = q ? catalog.searchProducts(q) : [];
+  const { results: found, correctedTo } = q ? catalog.search(q) : { results: [], correctedTo: null };
   const results = sort === "rec" ? found : sortProducts(found, sort);
   const meta = q ? catalog.predictive(q) : null;
   const arts = q ? articlesFor(q, 3) : [];
@@ -53,7 +53,14 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
       ) : (
         <>
           <div className="mt-10 flex flex-col gap-5 border-b border-ink pb-6 lg:flex-row lg:items-end lg:justify-between">
-            <h1 className="m-0 font-display text-5xl font-medium leading-[.95] lg:text-[76px]">“{q}”</h1>
+            <div className="flex flex-col gap-3">
+              <h1 className="m-0 font-display text-5xl font-medium leading-[.95] lg:text-[76px]">“{correctedTo ?? q}”</h1>
+              {correctedTo && (
+                <span className="text-sm text-slate-text">
+                  Showing results for <strong className="font-semibold text-ink">{correctedTo}</strong> — no exact match for “{q}”.
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="mr-2 text-sm font-medium tabular-nums text-slate-text" aria-live="polite">
                 {plural(results.length, "product")}

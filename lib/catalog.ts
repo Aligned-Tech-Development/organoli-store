@@ -20,6 +20,25 @@ export interface FacetOption {
 
 const norm = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[’']/g, "");
 
+/** Levenshtein distance with transpositions counted as one edit; stops early once it exceeds `cap`. */
+function editDistance(a: string, b: string, cap: number) {
+  let prev2: number[] = [];
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    let rowMin = i;
+    for (let j = 1; j <= b.length; j++) {
+      let d = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d = Math.min(d, prev2[j - 2] + 1);
+      cur.push(d);
+      rowMin = Math.min(rowMin, d);
+    }
+    if (rowMin >= cap) return cap;
+    [prev2, prev] = [prev, cur];
+  }
+  return prev[b.length];
+}
+
 /** Merchandising rank used by "Recommended" sort. */
 function rank(p: Product) {
   let r = 0;
@@ -161,15 +180,51 @@ export class Catalog {
   };
 
   // ---------- search ----------
-  searchProducts = (q: string): Product[] => {
+  /** Products matching every word of `q`; falls back to typo-corrected words when nothing matches. */
+  searchProducts = (q: string): Product[] => this.search(q).results;
+
+  /** Like searchProducts, and says which corrected query was used, if any. */
+  search = (q: string): { results: Product[]; correctedTo: string | null } => {
+    const exact = this.matchTokens(norm(q).split(/\s+/).filter(Boolean));
+    if (exact.length) return { results: exact, correctedTo: null };
+    const fixed = this.correctQuery(q);
+    const results = fixed ? this.matchTokens(fixed.split(" ")) : [];
+    return { results, correctedTo: results.length ? fixed : null };
+  };
+
+  private vocabulary?: Set<string>;
+
+  /** `q` with misspelt words swapped for the closest catalogue word, or null when nothing changes. */
+  correctQuery = (q: string): string | null => {
+    this.vocabulary ??= new Set(this.searchIndex.flatMap((r) => `${r.name} ${r.brand} ${r.ingredients} ${r.meta}`.split(/[^a-z0-9-]+/)).filter((w) => w.length >= 3));
     const tokens = norm(q).split(/\s+/).filter(Boolean);
+    let changed = false;
+    const out = tokens.map((t) => {
+      if (t.length < 4 || this.vocabulary!.has(t)) return t;
+      const max = t.length >= 7 ? 2 : 1;
+      let best: string | null = null;
+      let bestD = max + 1;
+      for (const w of this.vocabulary!) {
+        if (Math.abs(w.length - t.length) > max) continue;
+        const d = editDistance(t, w, bestD);
+        if (d < bestD) [best, bestD] = [w, d];
+      }
+      if (!best) return t;
+      changed = true;
+      return best;
+    });
+    return changed ? out.join(" ") : null;
+  };
+
+  private matchTokens = (tokens: string[]): Product[] => {
     if (!tokens.length) return [];
     const scored: { p: Product; s: number }[] = [];
     for (const row of this.searchIndex) {
       let total = 0;
       let ok = true;
       for (const t of tokens) {
-        const re = new RegExp(`(^|[^a-z0-9])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`);
+        // One-letter words ("vit c", "b 12") must be a whole word, not any word starting with that letter.
+        const re = new RegExp(`(^|[^a-z0-9])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}${t.length === 1 ? "(?![a-z0-9])" : ""}`);
         let s = 0;
         if (re.test(row.name)) s = row.name.startsWith(t) ? 12 : 10;
         else if (re.test(row.brand)) s = 8;

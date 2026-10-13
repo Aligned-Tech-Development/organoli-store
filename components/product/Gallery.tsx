@@ -2,6 +2,7 @@
 
 import Image from "@/components/Img";
 import { useRef, useState } from "react";
+import { NoProductPhoto } from "@/components/ProductImage";
 import { pad2 } from "@/lib/format";
 import type { Badge, ProductImage } from "@/lib/types";
 
@@ -38,9 +39,7 @@ export function Gallery({ images, badge, name }: { images: ProductImage[]; badge
           </div>
         ))
       ) : (
-        <div className="ph-paper absolute inset-0 flex items-start p-4">
-          <span className="caption text-slate-text">Pack shot · front</span>
-        </div>
+        <NoProductPhoto />
       )}
       {["left-3 top-2.5", "right-3 top-2.5", "bottom-2.5 left-3"].map((pos) => (
         <span key={pos} aria-hidden="true" className={`absolute hidden text-xl font-light leading-none text-[#7F959A] lg:block ${pos}`}>

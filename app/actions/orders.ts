@@ -28,7 +28,7 @@ export async function placeOrder(form: {
   if (name.length < 2) return { ok: false, field: "name", error: "Enter the name for the delivery." };
   if (phone.replace(/\D/g, "").length < 7) return { ok: false, field: "phone", error: "Enter a phone number we can call or WhatsApp — at least 7 digits." };
   if (!ZONES.includes(zone)) return { ok: false, field: "zone", error: "Choose a delivery area." };
-  if (!zone.startsWith("Click") && address.length < 5) return { ok: false, field: "address", error: "Enter the delivery address — street, building and floor." };
+  if (address.length < 5) return { ok: false, field: "address", error: "Enter the delivery address — street, building and floor." };
   if (!(PAYMENT_METHODS as readonly string[]).includes(payment)) return { ok: false, field: "payment", error: "Choose how you’d like to pay." };
 
   const { items, subtotal, problems } = await priceLines(Array.isArray(form.lines) ? form.lines : []);

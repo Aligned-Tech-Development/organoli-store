@@ -36,7 +36,6 @@ export function CheckoutForm({ signedIn, defaults }: { signedIn: boolean; defaul
 
   const subtotal = cartSubtotal(lines);
   const freeDelivery = form.zone === "Beirut" && subtotal >= site.freeDeliveryThreshold;
-  const collect = form.zone.startsWith("Click");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,12 +120,10 @@ export function CheckoutForm({ signedIn, defaults }: { signedIn: boolean; defaul
               );
             })}
           </div>
-          {!collect && (
-            <label className="flex flex-col gap-2">
-              <span className={labelCls}>Address</span>
-              <textarea id="co-address" value={form.address} onChange={set("address")} rows={3} autoComplete="street-address" placeholder="Area, street, building, floor" aria-invalid={err("address")} className={`${field} h-auto py-3`} />
-            </label>
-          )}
+          <label className="flex flex-col gap-2">
+            <span className={labelCls}>Address</span>
+            <textarea id="co-address" value={form.address} onChange={set("address")} rows={3} autoComplete="street-address" placeholder="Area, street, building, floor" aria-invalid={err("address")} className={`${field} h-auto py-3`} />
+          </label>
           <label className="flex flex-col gap-2">
             <span className={labelCls}>Notes (optional)</span>
             <input value={form.notes} onChange={set("notes")} placeholder="Best time to call, landmarks…" className={field} />
@@ -181,7 +178,7 @@ export function CheckoutForm({ signedIn, defaults }: { signedIn: boolean; defaul
             </div>
             <div className="flex justify-between gap-4">
               <span>Delivery</span>
-              <span className="text-right text-slate-text">{collect ? "Free — collect in Hamra" : freeDelivery ? "Free" : "Confirmed by our pharmacist"}</span>
+              <span className="text-right text-slate-text">{freeDelivery ? "Free" : "Confirmed by our pharmacist"}</span>
             </div>
           </div>
           <div className="flex flex-col gap-3 px-5 pb-5 pt-4">
@@ -221,7 +218,7 @@ function Placed({ order, signedIn }: { order: Order; signedIn: boolean }) {
           <span className="text-slate-700">.</span>
         </h1>
         <p className="m-0 max-w-[520px] text-lg leading-[1.55]">
-          Thank you, {order.name.split(" ")[0]}. Our pharmacist will confirm your order by phone or WhatsApp — usually within the hour during opening times ({site.counter.hours}).
+          Thank you, {order.name.split(" ")[0]}. Our pharmacist will confirm your order by phone or WhatsApp — usually within the hour.
         </p>
         <div className="max-w-[520px]">
           <StatusTracker status={order.status} />

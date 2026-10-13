@@ -1,6 +1,17 @@
 import Image from "@/components/Img";
 import type { ProductImage as Img } from "@/lib/types";
 
+/** Shown when a product has no photo in hader: the Organoli "+" on the paper tone. */
+export function NoProductPhoto({ className = "" }: { className?: string }) {
+  return (
+    <div className={`ph-paper absolute inset-0 flex items-center justify-center ${className}`}>
+      <span aria-hidden="true" className="flex aspect-square w-[22%] max-w-[88px] items-center justify-center rounded-full bg-mint/60 text-[clamp(20px,5vw,48px)] font-medium leading-none text-ink">
+        +
+      </span>
+    </div>
+  );
+}
+
 /**
  * Product pack shot. Source images are white-background PNGs, so they are
  * multiplied onto the paper tone to sit naturally in the frame.
@@ -11,22 +22,14 @@ export function ProductImage({
   className = "",
   pad = "8%",
   priority = false,
-  label = "Pack shot · 1:1",
 }: {
   image: Img | null;
   sizes: string;
   className?: string;
   pad?: string;
   priority?: boolean;
-  label?: string;
 }) {
-  if (!image) {
-    return (
-      <div className={`ph-paper absolute inset-0 flex items-end p-3.5 ${className}`}>
-        <span className="caption text-slate-text">{label}</span>
-      </div>
-    );
-  }
+  if (!image) return <NoProductPhoto className={className} />;
   return (
     <div className={`absolute inset-0 ${className}`} style={{ padding: pad }}>
       <div className="relative h-full w-full">

@@ -40,7 +40,7 @@ export const edits: Edit[] = [
   {
     tab: "The Sleep Edit",
     title: "The Sleep Edit",
-    dek: "An evening routine built around magnesium — the most-asked-about product at our counter — plus two quiet companions.",
+    dek: "An evening routine built around magnesium — the most-asked-about product on our shelf — plus two quiet companions.",
     window: "20:00–21:30",
     caption: "Lifestyle · bedside, low lamp, linen, glass jar",
     image: "/images/edit-sleep.jpg",
@@ -84,7 +84,7 @@ export const trustPoints = [
 export const curateSteps = [
   { n: "01", h: "We research", d: "We read the evidence for an ingredient before looking at any brand: which form, what dose, for whom.", short: "Evidence for the ingredient first, brand second.", num: 120, suffix: "+", k: "Ingredient monographs on file" },
   { n: "02", h: "We evaluate", d: "Dose against the evidence, form, excipients, allergens, third-party testing and manufacturing standards.", short: "Dose, form, excipients and testing.", num: null, suffix: "", k: "Brands on the shelf" },
-  { n: "03", h: "We select", d: "Only what we would recommend across the counter. If two products do the same job, we keep the better one.", short: "Fewer than one in seven make the shelf.", num: null, suffix: "", k: "Products on the shelf" },
+  { n: "03", h: "We select", d: "Only what we would recommend to our own family. If two products do the same job, we keep the better one.", short: "Fewer than one in seven make the shelf.", num: null, suffix: "", k: "Products on the shelf" },
   { n: "04", h: "We stock locally", d: "Imported through authorised distributors, stored correctly in Beirut, checked again before dispatch.", short: "Stored in Beirut, checked on arrival.", num: 100, suffix: "%", k: "Batches checked on arrival" },
 ];
 

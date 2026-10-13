@@ -4,6 +4,7 @@ import Image from "@/components/Img";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { NoProductPhoto } from "@/components/ProductImage";
 import { whatsappLink } from "@/content/site";
 import { canBuy, money, stockDot, stockLabel } from "@/lib/format";
 import { useCart, useWishlist } from "@/lib/store";
@@ -38,9 +39,7 @@ export function ProductCard({ p, sizes = "(min-width:1024px) 25vw, 50vw", compac
                 <Image src={p.image.src} alt="" fill sizes={sizes} className="object-contain mix-blend-multiply" />
               </div>
             ) : (
-              <div className="ph-paper absolute inset-0 flex items-end p-3.5">
-                <span className="caption text-slate-text">Pack shot · bottle front</span>
-              </div>
+              <NoProductPhoto />
             )}
           </div>
           {p.image2 && (

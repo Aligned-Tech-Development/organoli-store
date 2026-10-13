@@ -1,5 +1,5 @@
-// Store-level editorial content. Values marked PLACEHOLDER come from the design
-// handoff and must be replaced with the real details before launch.
+// Store-level editorial content. Online-only shop: no named pharmacist, shop
+// address or opening hours. Values marked CONFIRM need the client's OK before launch.
 
 export const site = {
   name: "Organoli",
@@ -11,28 +11,34 @@ export const site = {
   /** Local time (Asia/Beirut) after which orders ship the next working day. */
   dispatchCutoffHour: 16,
   timeZone: "Asia/Beirut",
-  /** PLACEHOLDER — pharmacist shown across the site. */
-  pharmacist: { name: "Rana Haddad", firstName: "Rana", initials: "RH", title: "Founder · Pharmacist", credentials: "PharmD", avatar: "/images/pharmacist.jpg" },
   /** WhatsApp number: display format, and digits only for wa.me links. */
   whatsapp: { display: "+961 81 047 743", digits: "96181047743" },
+  /** CONFIRM — that this mailbox exists on organoli.com. */
   email: "hello@organoli.com",
-  /** PLACEHOLDER — counter address and hours. */
-  counter: { address: "Hamra Street, Beirut", hours: "Mon–Sat, 9:00–19:00", hoursShort: "Mon–Sat 9–19" },
   payments: ["Cash on delivery", "Whish"],
+  /** CONFIRM — delivery times per area. */
   deliveryZones: [
     { zone: "Beirut", time: "next day" },
     { zone: "Mount Lebanon", time: "1–2 days" },
     { zone: "North, South & Bekaa", time: "2–3 days" },
-    { zone: "Click & collect, Hamra", time: "same day" },
   ],
-  social: [
-    { label: "Instagram", href: "https://www.instagram.com/" },
-    { label: "TikTok", href: "https://www.tiktok.com/" },
-    { label: "Facebook", href: "https://www.facebook.com/" },
-  ],
+  /** Empty until the client sends their accounts — the footer hides the links meanwhile. */
+  social: [] as { label: string; href: string }[],
 } as const;
 
-export const whatsappLink = (text?: string) =>
+/**
+ * The site's public origin: NEXT_PUBLIC_SITE_URL when set, otherwise Vercel's
+ * production domain (the demo now, organoli.com once it is attached), else site.url.
+ */
+export const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : site.url)
+).replace(/\/+$/, "");
+
+/** True while the site is served from a *.vercel.app address — keep search engines out. */
+export const isDemoHost = new URL(siteUrl).hostname.endsWith(".vercel.app");
+
+export const whatsappLink =(text?: string) =>
   `https://wa.me/${site.whatsapp.digits}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 
 export const popularSearches = ["magnesium", "creatine", "vitamin d", "probiotic", "collagen", "ashwagandha", "omega", "zinc"];
