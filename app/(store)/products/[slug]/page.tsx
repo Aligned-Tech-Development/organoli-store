@@ -27,8 +27,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return {
     title,
     description: p.shortDescription ?? p.purpose ?? `${title} — pharmacist-curated and in stock in Beirut.`,
-    // Without a photo, leave images unset so the site-wide share image applies.
-    openGraph: { title, ...(p.images[0] ? { images: [{ url: p.images[0].src }] } : {}) },
+    // A page-level openGraph replaces the root one, so name the site-wide image when there is no photo.
+    openGraph: { title, images: [{ url: p.images[0]?.src ?? "/opengraph-image.png" }] },
   };
 }
 
