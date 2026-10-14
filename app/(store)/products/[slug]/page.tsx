@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const title = `${p.brand ? `${p.brand} ` : ""}${p.name}${p.count ? `, ${p.count}` : ""}`;
   return {
     title,
-    description: p.shortDescription ?? p.purpose ?? `${title} — pharmacist-curated and in stock in Beirut.`,
+    description: p.shortDescription ?? p.purpose ?? `${title} — pharmacist-curated${p.stock === "out" ? "" : " and in stock in Beirut"}.`,
     // A page-level openGraph replaces the root one, so name the site-wide image when there is no photo.
     openGraph: { title, images: [{ url: p.images[0]?.src ?? "/opengraph-image.png" }] },
   };

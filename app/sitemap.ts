@@ -3,8 +3,9 @@ import { siteUrl } from "@/content/site";
 import { getCatalog } from "@/lib/catalog";
 import { CATEGORIES } from "@/lib/taxonomy";
 
-// Same refresh as the catalogue, so deleted products leave the sitemap as quickly as the site.
-export const revalidate = 300;
+// A sitemap is cached until the next deploy unless it is dynamic. Built per request from the
+// (already cached) catalogue, so new and deleted products show up as quickly as on the site.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const catalog = await getCatalog();
