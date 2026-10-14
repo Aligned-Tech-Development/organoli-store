@@ -86,7 +86,9 @@ export function BuyBox({ p, stickySpec }: { p: CardProduct; stickySpec: string }
 
       <div className="flex flex-col bg-paper-shade">
         {[
-          { icon: Truck, h: mins != null && mins > 0 ? `Order within ${Math.floor(mins / 60) ? `${Math.floor(mins / 60)} h ` : ""}${mins % 60} min —` : "Order today —", t: `delivered tomorrow in ${site.city}. Free over $${site.freeDeliveryThreshold}.` },
+          p.stock === "out"
+            ? { icon: Truck, h: "Out of stock —", t: "tap Notify me and we’ll message you on WhatsApp when it’s back." }
+            : { icon: Truck, h: mins != null && mins > 0 ? `Order within ${Math.floor(mins / 60) ? `${Math.floor(mins / 60)} h ` : ""}${mins % 60} min —` : "Order today —", t: `delivered tomorrow in ${site.city}. Free over $${site.freeDeliveryThreshold}.` },
           { icon: MapPin, h: "Rest of Lebanon:", t: "Mount Lebanon 1–2 days · North, South & Bekaa 2–3 days." },
           { icon: Wallet, h: "Pay your way:", t: "cash on delivery or Whish." },
           { icon: MessageCircle, h: "Not sure it’s right for you?", t: "Ask our pharmacist on WhatsApp.", href: ask },
