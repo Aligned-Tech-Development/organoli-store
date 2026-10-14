@@ -4,7 +4,7 @@ import { FooterAccordion } from "./FooterAccordion";
 
 const COLS: { h: string; l: [string, string][] }[] = [
   { h: "Shop", l: [["All products", "/shop"], ["Shop by goal", "/#shop-by-goal"], ["Brands A–Z", "/brands"], ["New on the shelf", "/shop?sort=new"], ["Wishlist", "/wishlist"]] },
-  { h: "Help", l: [["Find your routine", "/routine"], ["Ask a pharmacist", whatsappLink()], ["Returns", whatsappLink("Hello, I'd like to return an item.")], ["Track an order", whatsappLink("Hello, I'd like to track my order.")], ["Search", "/search"]] },
+  { h: "Help", l: [["Contact us", "/contact"], ["Find your routine", "/routine"], ["Ask a pharmacist", whatsappLink()], ["Returns", whatsappLink("Hello, I'd like to return an item.")], ["Track an order", whatsappLink("Hello, I'd like to track my order.")], ["Search", "/search"]] },
   { h: "Organoli", l: [["How we curate", "/#how-we-curate"], ["Learn", "/#learn"], ["Why Organoli", "/#why-organoli"], ["For practitioners", `mailto:${site.email}`]] },
   { h: "Delivery", l: site.deliveryZones.map((z) => [`${z.zone} — ${z.time}`, "/#why-organoli"] as [string, string]) },
   { h: site.social.length ? "Social" : "Stay in touch", l:[...site.social.map((s) => [s.label, s.href] as [string, string]), ["Weekly letter", "/#newsletter"]] },

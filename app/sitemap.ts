@@ -13,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/shop", 0.9),
     page("/brands", 0.6),
     page("/routine", 0.6),
+    page("/contact", 0.5),
     ...CATEGORIES.map((c) => page(`/shop/${c.slug}`, 0.8)),
     ...catalog.getProducts().map((p) => page(`/products/${p.slug}`, p.stock === "out" ? 0.4 : 0.7)),
   ];

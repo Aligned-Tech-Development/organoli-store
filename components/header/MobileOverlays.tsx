@@ -71,6 +71,7 @@ export function MobileMenu({ data, open, onClose }: { data: HeaderData; open: bo
               ["Find your routine", "/routine"],
               ["Wishlist", "/wishlist"],
               ["Sign in / Account", "/account"],
+              ["Contact us", "/contact"],
             ].map(([l, h]) => (
               <Link key={h} href={h} onClick={onClose} className="flex min-h-12 items-center border-b border-hairline-soft text-xs font-semibold uppercase tracking-[.14em]">
                 {l} →

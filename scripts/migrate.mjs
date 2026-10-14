@@ -34,5 +34,18 @@ await sql`
 await sql`create index if not exists orders_user_created_idx on orders (user_id, created_at desc)`;
 await sql`create index if not exists orders_status_created_idx on orders (status, created_at desc)`;
 
+await sql`
+  create table if not exists contact_messages (
+    id            bigint generated always as identity primary key,
+    name          text not null,
+    email         text,
+    phone         text,
+    topic         text not null,
+    message       text not null,
+    emailed       boolean not null default false,
+    created_at    timestamptz not null default now()
+  )`;
+
 const [{ count }] = await sql`select count(*)::int as count from orders`;
-console.log(`orders table ready (${count} rows)`);
+const [{ count: messages }] = await sql`select count(*)::int as count from contact_messages`;
+console.log(`orders table ready (${count} rows), contact_messages ready (${messages} rows)`);
