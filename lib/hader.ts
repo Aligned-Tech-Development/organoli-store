@@ -72,6 +72,8 @@ async function fetchGroup(base: string, key: string, category: string, available
     headers: { "X-Aligned-Api-Key": key, Accept: "application/json" },
     ...(fresh ? { cache: "no-store" as const } : { next: { revalidate: CATALOG_REVALIDATE_SECONDS, tags: [CATALOG_TAG] } }),
     signal: AbortSignal.timeout(15_000),
+  }).catch((e: Error) => {
+    throw new SyncError(`couldn't reach hader (${e.name === "TimeoutError" ? "no answer within 15 s" : e.message}${e.cause instanceof Error ? `: ${e.cause.message}` : ""})`);
   });
   if (!res.ok) throw new SyncError(`hader answered ${res.status} for ${category} (${available ? "available" : "unavailable"}): ${(await res.text()).slice(0, 200)}`);
   const body = (await res.json()) as { data: ReadApiProduct[] };
