@@ -130,7 +130,7 @@ export function BuyBox({ p, stickySpec }: { p: CardProduct; stickySpec: string }
           </span>
           <span className="flex items-center gap-2 text-[13px] font-medium leading-none text-slate-text">
             <span className="h-[7px] w-[7px] rounded-full" style={{ background: stockDot(p.stock) }} />
-            {p.stock === "out" ? "Back in ~2 weeks" : <DispatchShort />}
+            {p.stock === "out" ? "Out of stock" : <DispatchShort />}
           </span>
           {p.price > 0 && <span className="px-2 text-[22px] font-semibold leading-none tabular-nums">{money(p.price)}</span>}
           {buyable ? (

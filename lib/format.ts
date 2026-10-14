@@ -3,7 +3,7 @@ import type { StockStatus } from "./types";
 export const money = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 
 export const stockLabel = (s: StockStatus) =>
-  s === "in" ? "In stock · Beirut" : s === "low" ? "Low stock" : "Back in ~2 weeks";
+  s === "in" ? "In stock · Beirut" : s === "low" ? "Low stock" : "Out of stock";
 
 export const stockDot = (s: StockStatus) => (s === "in" ? "#7FB9A1" : s === "low" ? "#C9A46E" : "#A9B4B6");
 

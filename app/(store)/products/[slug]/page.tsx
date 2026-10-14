@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductImage } from "@/components/ProductImage";
 import { BuyBox } from "@/components/product/BuyBox";
 import { MobileTabs, Warnings } from "@/components/product/Bits";
 import { Gallery } from "@/components/product/Gallery";
@@ -56,6 +57,7 @@ export default async function ProductPage({ params }: { params: Params }) {
   const cat = CATEGORY_BY_SLUG[p.category];
   const card = catalog.toCard(p);
   const related = catalog.relatedProducts(p).map(catalog.toCard);
+  const alternatives = p.stock === "out" ? catalog.alternatives(p).map(catalog.toCard) : [];
   const compare = catalog.compareSet(p);
   const formLine = [p.format, p.form?.toLowerCase()].filter(Boolean).join(" · ");
 
@@ -130,9 +132,9 @@ export default async function ProductPage({ params }: { params: Params }) {
           <div className="flex items-center justify-between border-y border-hairline py-3 lg:hidden">
             <span className="text-[26px] font-semibold leading-none">{p.price > 0 ? money(p.price) : "Price on request"}</span>
             <span className="text-right text-[13px] font-medium leading-[1.3]">
-              <span style={{ color: stockDot(p.stock) }}>●</span> {p.stock === "out" ? "Back in ~2 weeks" : `In stock in ${site.city}`}
+              <span style={{ color: stockDot(p.stock) }}>●</span> {p.stock === "out" ? "Out of stock" : `In stock in ${site.city}`}
               <br />
-              <span className="text-slate-text">{p.stock === "out" ? "Ask us to reserve one" : "Delivered tomorrow"}</span>
+              <span className="text-slate-text">{p.stock === "out" ? "We’ll tell you when it’s back" : "Delivered tomorrow"}</span>
             </span>
           </div>
 
@@ -156,7 +158,7 @@ export default async function ProductPage({ params }: { params: Params }) {
             <span className={`${p.price > 0 ? "text-4xl" : "text-2xl"} font-semibold leading-none tabular-nums`}>{p.price > 0 ? money(p.price) : "Price on request"}</span>
             <span className="flex items-center gap-2 text-sm font-medium leading-none">
               <span className="h-2 w-2 rounded-full" style={{ background: stockDot(p.stock) }} />
-              {p.stock === "out" ? "Out of stock · back in ~2 weeks" : `In stock in ${site.city}`}
+              {p.stock === "out" ? "Out of stock" : `In stock in ${site.city}`}
             </span>
           </div>
 
@@ -166,6 +168,25 @@ export default async function ProductPage({ params }: { params: Params }) {
           <div className="lg:hidden">
             <BuyBoxMobileOnly p={card} stickySpec={stickySpec} />
           </div>
+
+          {alternatives.length > 0 && (
+            <div className="flex flex-col border border-hairline">
+              <span className="border-b border-hairline px-4 py-3 text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">In stock alternatives</span>
+              {alternatives.map((a) => (
+                <Link key={a.slug} href={`/products/${a.slug}`} className="grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-3.5 border-b border-hairline px-4 py-3 last:border-b-0 hover:bg-paper-shade">
+                  <span className="relative h-14 w-14 border border-hairline bg-paper-hover">
+                    <ProductImage image={a.image} sizes="56px" pad="6%" />
+                  </span>
+                  <span className="flex min-w-0 flex-col gap-1">
+                    {a.brand && <span className="text-[10px] font-semibold uppercase leading-none tracking-[.14em] text-slate-text">{a.brand}</span>}
+                    <span className="truncate text-[15px] font-medium leading-[1.2]">{a.name}</span>
+                    {a.specLine && <span className="text-xs text-slate-text">{a.specLine}</span>}
+                  </span>
+                  <span className="text-[15px] font-semibold tabular-nums">{money(a.price)}</span>
+                </Link>
+              ))}
+            </div>
+          )}
 
           <MobileTabs
             tabs={[

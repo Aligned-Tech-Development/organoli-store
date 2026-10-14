@@ -293,6 +293,23 @@ export class Catalog {
     return [...pool].sort((a, b) => score(b) - score(a)).slice(0, n);
   };
 
+  /** In-stock products that can stand in for an out-of-stock one: same ingredient first, then same job. */
+  alternatives = (p: Product, n = 3) => {
+    const score = (x: Product) =>
+      (p.ingredients[0] && x.ingredients[0] === p.ingredients[0] ? 6 : 0) +
+      x.ingredients.filter((i) => p.ingredients.includes(i)).length * 3 +
+      (x.category === p.category ? 2 : 0) +
+      x.goals.filter((g) => p.goals.includes(g)).length +
+      (x.form && x.form === p.form ? 1 : 0);
+    return this.products
+      .filter((x) => x.slug !== p.slug && x.stock !== "out" && x.price > 0)
+      .map((x) => ({ x, s: score(x) }))
+      .filter(({ s }) => s >= 2)
+      .sort((a, b) => b.s - a.s || rank(b.x) - rank(a.x))
+      .slice(0, n)
+      .map(({ x }) => x);
+  };
+
   /** Other products built on the same main ingredient — the "Compare" table. */
   compareSet = (p: Product, n = 4) => {
     const main = p.ingredients[0];
