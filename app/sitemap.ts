@@ -3,7 +3,8 @@ import { siteUrl } from "@/content/site";
 import { getCatalog } from "@/lib/catalog";
 import { CATEGORIES } from "@/lib/taxonomy";
 
-export const revalidate = 3600;
+// Same refresh as the catalogue, so deleted products leave the sitemap as quickly as the site.
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const catalog = await getCatalog();

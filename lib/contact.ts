@@ -7,6 +7,7 @@
 // Without a key the message is still saved, so nothing is lost.
 import { neon } from "@neondatabase/serverless";
 import { site } from "@/content/site";
+import { recipients, sendEmail } from "./email";
 
 export { CONTACT_TOPICS } from "./contactMeta";
 
@@ -53,13 +54,7 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 
 /** Returns true when the email was accepted by Resend, false when email isn't configured or failed. */
 export async function emailMessage(id: number, m: ContactMessage): Promise<boolean> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    console.info(`[contact] message #${id} saved; RESEND_API_KEY not set, so no email was sent.`);
-    return false;
-  }
-  const to = (process.env.CONTACT_TO_EMAIL ?? site.email).split(",").map((s) => s.trim()).filter(Boolean);
-  const from = process.env.CONTACT_FROM_EMAIL ?? "Organoli website <onboarding@resend.dev>";
+  const to = recipients(process.env.CONTACT_TO_EMAIL ?? site.email);
   const rows: [string, string][] = [
     ["Name", m.name],
     ["Email", m.email || "—"],
@@ -70,19 +65,5 @@ export async function emailMessage(id: number, m: ContactMessage): Promise<boole
   const html = `<table style="font:14px/1.5 sans-serif;border-collapse:collapse">${rows
     .map(([k, v]) => `<tr><td style="padding:2px 16px 2px 0;color:#4E6870">${k}</td><td>${esc(v)}</td></tr>`)
     .join("")}</table><p style="font:15px/1.6 sans-serif;white-space:pre-wrap;margin:20px 0">${esc(m.message)}</p><p style="font:12px sans-serif;color:#4E6870">Message #${id} from the contact form on the Organoli website.${m.email ? " Reply to this email to answer the customer." : ""}</p>`;
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to, subject: `Website message: ${m.topic} — ${m.name}`, text, html, ...(m.email ? { reply_to: m.email } : {}) }),
-    });
-    if (!res.ok) {
-      console.error(`[contact] Resend rejected message #${id}: ${res.status} ${(await res.text()).slice(0, 300)}`);
-      return false;
-    }
-    return true;
-  } catch (e) {
-    console.error(`[contact] emailing message #${id} failed`, e);
-    return false;
-  }
+  return sendEmail({ to, subject: `Website message: ${m.topic} — ${m.name}`, text, html, replyTo: m.email || undefined });
 }

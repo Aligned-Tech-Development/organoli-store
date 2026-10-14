@@ -247,8 +247,10 @@ export function normalizeProduct(p: RawProduct): Product {
 
   let categories = CATEGORY_RULES.filter(([, f]) => f(cats, fullName)).map(([s]) => s);
   if (categories.length > 1) categories = categories.filter((c) => c !== "wellness-care");
+  // hader's category is the client's decision: the product is listed there and only there,
+  // so changing it in hader moves the product instead of copying it.
   const hint = CATEGORY_SLUGS.find((c) => c === p.categoryHint);
-  if (hint) categories = [hint, ...categories.filter((c) => c !== hint && c !== "wellness-care")];
+  if (hint) categories = [hint];
 
   const goals = GOAL_RULES.filter(([, f]) => f(cats, nameText)).map(([s]) => s);
   const spec = [dose, size].filter(Boolean);
