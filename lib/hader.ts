@@ -1,18 +1,14 @@
-// Reads the Organoli product catalogue from hader.ai's existing read API
-// (GET /api/v1/read/products, scope `read:catalog`).
-//
-// That endpoint returns at most 100 products per call and doesn't paginate yet,
-// so we ask for each shop category × availability separately — every one of
-// those groups is well under 100. Products must therefore sit in one of the 8
-// website categories in hader to appear. When hader ships the storefront
-// endpoint in docs/HADER-INTEGRATION-SPEC.md §3, replace fetchGroup with it.
+// Reads the Organoli product catalogue from hader.ai's storefront API
+// (GET /api/v1/storefront/products, scope `read:storefront`; see
+// docs/HADER-INTEGRATION-SPEC.md §3): every product with all its images, paged
+// with a cursor, hidden ("not visible to customers") products left out.
 //
 // Results are cached under CATALOG_TAG for 5 minutes and dropped immediately
 // when hader's product webhooks hit /api/hader/webhook.
 //
-// A sync that fails, comes back truncated (a group at the 100 limit) or shrinks
-// suddenly is never shown: the site keeps serving the last good catalogue saved
-// in Neon (lib/catalogSnapshot.ts), and /api/health/catalog raises the alarm.
+// A sync that fails or shrinks suddenly is never shown: the site keeps serving
+// the last good catalogue saved in Neon (lib/catalogSnapshot.ts), and
+// /api/health/catalog raises the alarm.
 import { createHash } from "node:crypto";
 import { readSnapshot, writeSnapshot } from "./catalogSnapshot";
 import { CATEGORY_SLUGS, normalizeProducts, slugify, type RawProduct } from "./normalize";
@@ -23,33 +19,28 @@ export class SyncError extends Error {}
 
 /** More than this share of products disappearing at once is treated as a broken sync, not a real edit. */
 const MAX_DROP = 0.2;
+const PAGE_SIZE = 200;
+const MAX_PAGES = 50; // 10,000 products — a guard against a cursor that never ends
 
 export const CATALOG_TAG = "hader-catalog";
-
-/**
- * hader serves photos through signed storage links that expire after an hour, so
- * pages never embed them directly. Each photo gets a stable website URL
- * (/api/hader/img/<productId>?v=<photo id>) that redirects to the current signed
- * link; `v` changes when the photo is replaced in hader, so caches refresh too.
- */
-const imagePath = (productId: string, signedUrl: string) => {
-  const version = new URL(signedUrl).pathname.split("/").pop() ?? "1";
-  return `/api/hader/img/${encodeURIComponent(productId)}?v=${encodeURIComponent(version)}`;
-};
 export const CATALOG_REVALIDATE_SECONDS = 300;
 
-interface ReadApiProduct {
+interface StorefrontProduct {
   id: string;
   sku: string;
   name: string;
   slug: string;
-  description: string | null;
   shortDescription: string | null;
+  description: string | null;
   priceMinor: number | null;
+  compareAtMinor: number | null;
   currency: string;
-  available: boolean;
-  categoryName: string | null;
-  imageUrl: string | null;
+  isAvailable: boolean;
+  isPublished?: boolean;
+  category: { slug: string; name: string } | null;
+  /** Primary first. URLs are permanent: they redirect to a fresh signed storage link. */
+  images: { url: string; alt: string | null; isPrimary: boolean }[];
+  deletedAt: string | null;
 }
 
 const config = () => {
@@ -64,81 +55,95 @@ export const haderConfigured = () => config() !== null;
 const THOUSANDTHS = new Set(["KWD", "BHD", "OMR", "JOD", "TND", "IQD", "LYD"]);
 const fromMinor = (minor: number | null, currency: string) => (minor == null ? 0 : minor / (THOUSANDTHS.has(currency) ? 1000 : 100));
 
-async function fetchGroup(base: string, key: string, category: string, available: boolean, fresh: boolean): Promise<ReadApiProduct[]> {
+/** Every page of /storefront/products. `extra` adds query params (e.g. updatedSince). */
+async function fetchAll(cfg: { url: string; key: string }, fresh: boolean, extra = ""): Promise<StorefrontProduct[]> {
   // Accept either the API host ("https://api.example.com") or a base that already ends in /api/v1.
-  const root = /\/api\/v1$/.test(base) ? base : `${base}/api/v1`;
-  const url = `${root}/read/products?category=${encodeURIComponent(category)}&available=${available}&limit=100`;
-  const res = await fetch(url, {
-    headers: { "X-Aligned-Api-Key": key, Accept: "application/json" },
-    ...(fresh ? { cache: "no-store" as const } : { next: { revalidate: CATALOG_REVALIDATE_SECONDS, tags: [CATALOG_TAG] } }),
-    signal: AbortSignal.timeout(15_000),
-  }).catch((e: Error) => {
-    throw new SyncError(`couldn't reach hader (${e.name === "TimeoutError" ? "no answer within 15 s" : e.message}${e.cause instanceof Error ? `: ${e.cause.message}` : ""})`);
-  });
-  if (!res.ok) throw new SyncError(`hader answered ${res.status} for ${category} (${available ? "available" : "unavailable"}): ${(await res.text()).slice(0, 200)}`);
-  const body = (await res.json()) as { data: ReadApiProduct[] };
-  if (!Array.isArray(body.data)) throw new SyncError(`hader returned no product list for ${category}`);
-  // The read API stops at 100 and can't page yet, so a full group means products are missing.
-  if (body.data.length >= 100) throw new SyncError(`${category} (${available ? "available" : "unavailable"}) hit hader's 100-product limit — products would be missing.`);
-  return body.data;
+  const root = /\/api\/v1$/.test(cfg.url) ? cfg.url : `${cfg.url}/api/v1`;
+  const rows: StorefrontProduct[] = [];
+  let cursor: string | null = null;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const url = `${root}/storefront/products?limit=${PAGE_SIZE}${extra}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+    const res = await fetch(url, {
+      headers: { "X-Aligned-Api-Key": cfg.key, Accept: "application/json" },
+      ...(fresh ? { cache: "no-store" as const } : { next: { revalidate: CATALOG_REVALIDATE_SECONDS, tags: [CATALOG_TAG] } }),
+      signal: AbortSignal.timeout(15_000),
+    }).catch((e: Error) => {
+      throw new SyncError(`couldn't reach hader (${e.name === "TimeoutError" ? "no answer within 15 s" : e.message}${e.cause instanceof Error ? `: ${e.cause.message}` : ""})`);
+    });
+    if (!res.ok) throw new SyncError(`hader answered ${res.status} on page ${page + 1}: ${(await res.text()).slice(0, 200)}`);
+    const body = (await res.json()) as { data: StorefrontProduct[]; nextCursor: string | null };
+    if (!Array.isArray(body.data)) throw new SyncError(`hader returned no product list on page ${page + 1}`);
+    rows.push(...body.data);
+    cursor = body.nextCursor;
+    if (!cursor) return rows;
+  }
+  throw new SyncError(`hader's product list didn't end after ${MAX_PAGES} pages`);
 }
 
-/** Fetches every group from hader and turns it into raw products. Throws SyncError on anything we wouldn't show. */
+/** Fetches the published catalogue from hader as raw products. Throws SyncError on anything we wouldn't show. */
 export async function fetchHaderRaws(builtIn: Product[], { fresh = false } = {}): Promise<{ raws: RawProduct[]; imageUrls: [string, string][] }> {
   const cfg = config();
   if (!cfg) throw new SyncError("HADER_API_URL / HADER_API_KEY are not set");
-  const groups = await Promise.all(
-    CATEGORY_SLUGS.flatMap((category) => [true, false].map(async (available) => ({ category, rows: await fetchGroup(cfg.url, cfg.key, category, available, fresh) }))),
-  );
+  const rows = await fetchAll(cfg, fresh);
+  // Products imported from the old site keep their original id (for "New" ordering) and dietary tags.
   const known = new Map(builtIn.map((p) => [p.slug, p]));
   const seen = new Set<string>();
   const raws: RawProduct[] = [];
-  const imageUrls: [string, string][] = [];
   let newIndex = 0;
 
-  for (const { category, rows } of groups) {
-    for (const r of rows) {
-      if (seen.has(r.id)) continue;
-      seen.add(r.id);
-      if (r.imageUrl) imageUrls.push([r.id, r.imageUrl]);
-      // SKU = website slug for imported products; new hader products use hader's slug.
-      const prev = known.get(r.sku.toLowerCase());
-      const slug = prev?.slug ?? (r.slug || slugify(r.sku));
-      const extraPhotos = prev?.images.slice(1) ?? [];
-      raws.push({
-        // Imported products keep their original id; products added in hader rank as newest.
-        id: prev?.id ?? 1_000_000_000 + newIndex++,
-        slug,
-        name: r.name,
-        brand: prev?.brand ?? null,
-        shortDescription: r.shortDescription,
-        description: r.description,
-        price: fromMinor(r.priceMinor, r.currency),
-        compareAt: prev?.compareAt ?? null,
-        currency: r.currency,
-        inStock: r.available,
-        images: r.imageUrl ? [{ src: imagePath(r.id, r.imageUrl), alt: r.name }, ...extraPhotos] : (prev?.images ?? []),
-        sourceCategories: [
-          ...(prev?.sourceCategories ?? []).map((name) => ({ slug: slugify(name), name })),
-          { slug: category, name: r.categoryName ?? category },
-        ],
-        dietary: prev?.dietary ?? null,
-        // hader's category decides where the product is listed (lib/normalize.ts).
-        categoryHint: category,
-        permalink: prev?.permalink ?? null,
-      });
-    }
+  for (const r of rows) {
+    if (seen.has(r.id) || r.deletedAt || r.isPublished === false) continue;
+    seen.add(r.id);
+    // SKU = website slug for imported products; products created in hader use hader's slug.
+    const prev = known.get(r.sku.toLowerCase());
+    const slug = prev?.slug ?? (r.slug || slugify(r.sku));
+    const category = CATEGORY_SLUGS.find((c) => c === r.category?.slug) ?? null;
+    raws.push({
+      id: prev?.id ?? 1_000_000_000 + newIndex++,
+      slug,
+      name: r.name,
+      brand: prev?.brand ?? null,
+      shortDescription: r.shortDescription,
+      description: r.description,
+      price: fromMinor(r.priceMinor, r.currency),
+      compareAt: r.compareAtMinor ? fromMinor(r.compareAtMinor, r.currency) : null,
+      currency: r.currency,
+      inStock: r.isAvailable,
+      // All photos come from hader now (primary first) — nothing loads from the old WordPress site.
+      images: r.images.map((i) => ({ src: i.url, alt: i.alt || r.name })),
+      sourceCategories: [
+        ...(prev?.sourceCategories ?? []).map((name) => ({ slug: slugify(name), name })),
+        ...(r.category ? [{ slug: r.category.slug, name: r.category.name }] : []),
+      ],
+      dietary: prev?.dietary ?? null,
+      // hader's category decides where the product is listed (lib/normalize.ts). A category
+      // outside the website's 8 falls back to rules on the name, so the product still shows.
+      categoryHint: category,
+      permalink: prev?.permalink ?? null,
+    });
   }
   if (!raws.length) throw new SyncError("hader returned no products at all");
-  return { raws, imageUrls };
+  return { raws, imageUrls: [] };
 }
 
 export const hashRaws = (raws: RawProduct[]) => createHash("sha1").update(JSON.stringify(raws)).digest("hex");
 
-/** Throws when the new catalogue is suspiciously smaller than the last good one. */
-export function checkShrink(count: number, previous: number | null | undefined) {
-  if (previous && count < previous * (1 - MAX_DROP))
-    throw new SyncError(`hader returned ${count} products, down from ${previous} — more than ${MAX_DROP * 100}% gone at once, treated as a broken sync.`);
+/**
+ * Throws when the new catalogue is suspiciously smaller than the last good one.
+ * Products the client hid on purpose ("not visible to customers") don't count as
+ * missing, so hiding a batch of discontinued products isn't mistaken for a broken sync.
+ */
+export async function checkShrink(count: number, previous: number | null | undefined, { fresh = false } = {}) {
+  if (!previous || count >= previous * (1 - MAX_DROP)) return;
+  const cfg = config();
+  let hidden = 0;
+  if (cfg) {
+    // updatedSince returns hidden products too (flagged isPublished: false) — count the ones not deleted.
+    const everything = await fetchAll(cfg, fresh, `&updatedSince=${encodeURIComponent("1970-01-01T00:00:00.000Z")}`);
+    hidden = everything.filter((p) => p.isPublished === false && !p.deletedAt).length;
+  }
+  if (count + hidden < previous * (1 - MAX_DROP))
+    throw new SyncError(`hader returned ${count} products (plus ${hidden} hidden), down from ${previous} — more than ${MAX_DROP * 100}% gone at once, treated as a broken sync.`);
 }
 
 // Saved hash per server instance, so the snapshot is written once per change, not on every request.
@@ -149,7 +154,7 @@ const build = (raws: RawProduct[], imageUrls: [string, string][], stale: boolean
 
 /**
  * Live products from hader, merged with the built-in catalogue for detail hader
- * doesn't expose yet (extra photos, dietary tags, original ids for "New" ordering).
+ * doesn't expose yet (dietary tags, original ids for "New" ordering).
  * If hader fails, serves the last good catalogue; null only when there has never
  * been one (the caller then uses the built-in catalogue).
  */
@@ -162,7 +167,7 @@ export async function loadHaderCatalog(builtIn: Product[]): Promise<Loaded | nul
       try {
         const snap = await readSnapshot();
         if (snap?.hash !== hash) {
-          checkShrink(raws.length, snap?.count);
+          await checkShrink(raws.length, snap?.count);
           await writeSnapshot({ raws, imageUrls, count: raws.length, hash });
         }
         savedHash = hash;

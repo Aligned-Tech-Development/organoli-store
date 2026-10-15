@@ -16,9 +16,9 @@ Everything below is additive: new API-key scopes, three API-key endpoints, one `
 | Show a customer their orders | Dashboard only (`carts.routes.ts`, session auth) | No way to read a customer's orders with an API key. |
 | Keep the website in sync | Webhooks `product_created/updated/deleted`, `cart_status_changed` exist and are HMAC-signed | Payloads carry only `{ id, sku }` (fine), but the **CSV import worker emits no webhooks**, so bulk changes are invisible to subscribers. |
 
-### Interim product sync (live on the website now)
+### Product sync (live on the website)
 
-Until §3 ships, the website reads the existing `GET /api/v1/read/products` with a `read:catalog` key, one request per website category × availability (16 requests, each group < 100 products), cached 5 minutes and refreshed instantly by the `product_*` / `catalog_changed` webhooks. Limits of this stop-gap: only the main photo comes from hader, products must sit in one of the 8 website categories, and a group reaching 100 products would be truncated (the website logs a warning). Code: `organoli-store/lib/hader.ts`.
+§3 shipped on 2026-10-14. The website reads `GET /api/v1/storefront/products` (key with `read:storefront` + `read:catalog`), following `nextCursor` at 200 per page, cached 5 minutes and refreshed within seconds by the `product_*` / `catalog_changed` webhooks. All photos come from hader (primary first) through the permanent `/public/product-images/:id/:sig` links, fetched by the Next.js image optimiser because those links send `Cross-Origin-Resource-Policy: same-site`. Hidden products (`isPublished: false`) are left out. Code: `organoli-store/lib/hader.ts`.
 
 ---
 

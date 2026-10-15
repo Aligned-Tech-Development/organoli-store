@@ -39,7 +39,7 @@ export async function GET() {
   try {
     const { raws, imageUrls } = await fetchHaderRaws(builtInProducts(), { fresh: true });
     const snap = await readSnapshot();
-    checkShrink(raws.length, snap?.count);
+    await checkShrink(raws.length, snap?.count, { fresh: true });
     const hash = hashRaws(raws);
     if (snap?.hash !== hash) await writeSnapshot({ raws, imageUrls, count: raws.length, hash });
 
@@ -64,7 +64,7 @@ export async function GET() {
         subject: `[${SITE}] Product sync ${prev.ok ? "FAILED" : "still failing"}`,
         text: `The Organoli website can't read products from hader.\n\nReason: ${error}\n\n${
           snap ? `Customers still see the last good catalogue (${snap.count} products, saved ${snap.savedAt}). Changes made in hader since then are NOT on the site.` : "There is no saved catalogue, so the site is showing the old built-in product list."
-        }\n\nWhat to check: hader API status, the HADER_API_KEY in Vercel, and whether a category has reached 100 products.\nYou'll get another email when it recovers.`,
+        }\n\nWhat to check: hader API status (https://api.hader.ai/health) and the HADER_API_KEY in Vercel (it needs the read:storefront scope).\nYou'll get another email when it recovers.`,
       });
     }
     await recordCheck({ ok: false, error }, alerted).catch((e2) => console.error("[health] couldn't record the failure", e2));

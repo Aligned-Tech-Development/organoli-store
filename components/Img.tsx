@@ -1,21 +1,17 @@
 import NextImage, { type ImageProps } from "next/image";
 
-// Hosts listed in next.config.ts → images.remotePatterns, which Next can optimise.
-// Anything else (e.g. photos uploaded in hader.ai, served from its storage) is shown
-// as-is, so a new product photo never breaks because its host wasn't configured.
-const OPTIMISED_HOSTS = ["organoli.com"];
+// URL prefixes allowed by next.config.ts → images.remotePatterns, which Next can optimise.
+// Anything else is shown as-is, so a photo never breaks because its host wasn't configured.
+// hader's product photos must go through the optimiser: their links can't be embedded
+// cross-site directly (Cross-Origin-Resource-Policy: same-site).
+const OPTIMISED_PREFIXES = ["https://organoli.com/wp-content/uploads/", "https://api.hader.ai/api/v1/public/product-images/"];
 
 function optimisable(src: ImageProps["src"]) {
   if (typeof src !== "string") return true;
-  // hader photo redirects (/api/hader/img/…) — the browser follows them directly.
+  // Local API routes that redirect elsewhere — the browser follows them directly.
   if (src.startsWith("/api/")) return false;
   if (!/^https?:\/\//.test(src)) return true;
-  try {
-    const host = new URL(src).hostname;
-    return OPTIMISED_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
-  } catch {
-    return false;
-  }
+  return OPTIMISED_PREFIXES.some((p) => src.startsWith(p));
 }
 
 /** Drop-in replacement for next/image that tolerates unknown remote hosts. */
