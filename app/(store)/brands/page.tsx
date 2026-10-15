@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCatalog } from "@/lib/catalog";
 
-export const metadata: Metadata = { title: "Brands A–Z", description: "Every brand on the Organoli shelf." };
+export const metadata: Metadata = { title: "Brands A–Z", description: "Every brand on the Organoli shelf.", alternates: { canonical: "/brands" } };
 
 export default async function BrandsPage() {
   const catalog = await getCatalog();

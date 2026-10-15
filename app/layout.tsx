@@ -6,6 +6,7 @@ import { StoreHydrator } from "@/components/Providers";
 import { isDemoHost, siteUrl } from "@/content/site";
 import { bestSellers, pharmacistPicks } from "@/content/merchandising";
 import { getCatalog } from "@/lib/catalog";
+import { JsonLd, organizationLd } from "@/lib/structuredData";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { clerkAppearance } from "@/components/auth/appearance";
@@ -29,6 +30,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" className={`${barlow.variable} ${barlowCondensed.variable}`}>
       <body className="min-h-dvh bg-paper font-sans text-ink">
+        <JsonLd data={organizationLd()} />
         <ClerkProvider appearance={clerkAppearance} signInUrl="/sign-in" signUpUrl="/sign-up">
         <a href="#main" className="sr-only z-[200] rounded-sm bg-ink px-4 py-3 text-paper focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
           Skip to content

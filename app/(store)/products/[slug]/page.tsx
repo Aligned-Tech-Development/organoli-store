@@ -9,6 +9,7 @@ import { Gallery } from "@/components/product/Gallery";
 import { defaultWarnings, productContent } from "@/content/products";
 import { site, whatsappLink } from "@/content/site";
 import { getCatalog } from "@/lib/catalog";
+import { JsonLd, breadcrumbLd, productLd } from "@/lib/structuredData";
 import { money, stockDot } from "@/lib/format";
 import { CATEGORY_BY_SLUG, GOAL_BY_SLUG } from "@/lib/taxonomy";
 import { PharmacistMark } from "@/components/PharmacistMark";
@@ -30,6 +31,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     description: p.shortDescription ?? p.purpose ?? `${title} — pharmacist-curated${p.stock === "out" ? "" : " and in stock in Beirut"}.`,
     // A page-level openGraph replaces the root one, so name the site-wide image when there is no photo.
     openGraph: { title, images: [{ url: p.images[0]?.src ?? "/opengraph-image.png" }] },
+    alternates: { canonical: `/products/${p.slug}` },
   };
 }
 
@@ -87,19 +89,12 @@ export default async function ProductPage({ params }: { params: Params }) {
   let n = 0;
   const num = () => String(++n).padStart(2, "0");
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: p.fullName,
-    image: p.images.map((i) => i.src),
-    description: p.shortDescription ?? p.purpose ?? undefined,
-    brand: p.brand ? { "@type": "Brand", name: p.brand } : undefined,
-    offers: p.price > 0 ? { "@type": "Offer", price: p.price, priceCurrency: p.currency, availability: p.stock === "out" ? "https://schema.org/OutOfStock" : "https://schema.org/InStock" } : undefined,
-  };
+  const productData = productLd(p);
 
   return (
     <div className="pb-24 lg:pb-0">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      {productData && <JsonLd data={productData} />}
+      <JsonLd data={breadcrumbLd([["Shop", "/shop"], [cat.name, `/shop/${cat.slug}`], [p.name, `/products/${p.slug}`]])} />
       <nav aria-label="Breadcrumb" className="hidden gap-2.5 px-12 py-6 text-xs font-medium uppercase leading-none tracking-[.12em] text-slate-text lg:flex">
         <Link href="/shop" className="hover:text-ink">
           Shop

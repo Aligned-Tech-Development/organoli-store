@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "@/components/Img";
 import Link from "next/link";
 import { CountUp, DrawRule, Reveal } from "@/components/motion";
@@ -319,3 +320,5 @@ function DispensingLabel({ catalog }: { catalog: Catalog }) {
 
 // Refreshed with the catalogue: every 5 minutes, or instantly on a hader webhook.
 export const revalidate = 300;
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };

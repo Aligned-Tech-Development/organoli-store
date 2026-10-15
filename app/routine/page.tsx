@@ -6,6 +6,7 @@ import { RoutineFinder, type QuizProduct } from "./RoutineFinder";
 export const metadata: Metadata = {
   title: "Find what fits your routine",
   description: "Four questions, a short list of supplements chosen from what we stock today in Beirut. A shopping guide, not a diagnosis.",
+  alternates: { canonical: "/routine" },
 };
 
 export default async function RoutinePage() {

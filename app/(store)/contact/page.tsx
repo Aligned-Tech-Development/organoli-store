@@ -5,6 +5,7 @@ import { ContactForm } from "./ContactForm";
 export const metadata: Metadata = {
   title: "Contact us",
   description: "Questions about a product, an order or a return? Send a message and a pharmacist will reply, or reach us on WhatsApp.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {
