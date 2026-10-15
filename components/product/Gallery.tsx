@@ -52,18 +52,19 @@ export function Gallery({ images, badge, name }: { images: ProductImage[]; badge
           <span className="absolute bottom-5 right-5 hidden bg-ink px-2.5 py-1.5 text-[11px] font-semibold leading-none tracking-[.1em] text-paper tabular-nums lg:block">
             {pad2(i + 1)} / {pad2(n)}
           </span>
-          <div className="absolute inset-x-0 bottom-3.5 flex justify-center gap-1.5 lg:hidden">
+          <div className="absolute inset-x-0 bottom-2.5 flex justify-center lg:hidden">
             {images.map((img, k) => (
+              // 24 px tap area around each dot (the visible dot stays 10 / 22 px wide).
               <button
                 key={img.src}
                 type="button"
                 aria-label={`Image ${k + 1} of ${n}`}
                 aria-current={k === i}
                 onClick={() => setI(k)}
-                className="relative h-6 border-0 bg-transparent p-0 transition-[width] duration-300"
-                style={{ width: k === i ? 22 : 10 }}
+                className="relative flex h-6 items-center justify-center border-0 bg-transparent p-0 transition-[width] duration-300"
+                style={{ width: k === i ? 30 : 24 }}
               >
-                <span className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-[3px] bg-ink transition-opacity" style={{ opacity: k === i ? 1 : 0.3 }} />
+                <span className="h-1.5 rounded-[3px] bg-ink transition-[width,opacity] duration-300" style={{ width: k === i ? 22 : 10, opacity: k === i ? 1 : 0.3 }} />
               </button>
             ))}
           </div>
