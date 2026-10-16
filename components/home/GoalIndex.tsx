@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Reveal } from "@/components/motion";
+import { goalHref } from "@/content/seo";
 import { pad2 } from "@/lib/format";
 import { Photo } from "@/components/ProductImage";
 
@@ -32,7 +33,7 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
         </div>
         <div className="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4">
           {goals.map((x, i) => (
-            <Link key={x.slug} href={`/shop?goal=${x.slug}`} className="flex w-[132px] flex-none snap-start flex-col gap-2 text-ink">
+            <Link key={x.slug} href={goalHref(x.slug)} className="flex w-[132px] flex-none snap-start flex-col gap-2 text-ink">
               <span className={`relative flex aspect-[4/5] items-end overflow-hidden p-2 font-display text-2xl font-medium leading-none text-paper ${TONES[i % 3]}`}>
                 <Photo src={x.image} sizes="132px" />
                 <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
@@ -74,7 +75,7 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
                 <span className="font-display text-[30px] font-medium leading-none">{g.name}</span>
                 <span className="text-[11.5px] font-medium uppercase leading-[1.4] tracking-[.1em] text-slate-text">{g.ingredients}</span>
               </div>
-              <Link href={`/shop?goal=${g.slug}`} className="inline-flex h-11 flex-none items-center rounded-sm border border-ink px-[18px] text-xs font-semibold uppercase leading-none tracking-[.14em] text-ink transition-colors hover:bg-ink hover:text-paper">
+              <Link href={goalHref(g.slug)} className="inline-flex h-11 flex-none items-center rounded-sm border border-ink px-[18px] text-xs font-semibold uppercase leading-none tracking-[.14em] text-ink transition-colors hover:bg-ink hover:text-paper">
                 Shop {g.count} →
               </Link>
             </div>
@@ -85,7 +86,7 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
               return (
                 <Link
                   key={x.slug}
-                  href={`/shop?goal=${x.slug}`}
+                  href={goalHref(x.slug)}
                   onMouseEnter={() => setActive(i)}
                   onFocus={() => setActive(i)}
                   className="grid grid-cols-[36px_minmax(0,1fr)_minmax(0,170px)_44px_32px] items-center gap-4 border-b border-hairline py-[18px] text-ink"

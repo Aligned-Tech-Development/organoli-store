@@ -15,6 +15,7 @@ import { site } from "@/content/site";
 import { getCatalog, type Catalog } from "@/lib/catalog";
 import { roundWords } from "@/lib/format";
 import type { CategorySlug } from "@/lib/types";
+import { brandHref } from "@/content/seo";
 
 function heroCard(catalog: Catalog): HeroProduct | null {
   const p = catalog.getProduct(heroProduct);
@@ -229,7 +230,7 @@ export default async function HomePage() {
             if (!b) return null;
             return (
               <Reveal key={fb.slug}>
-                <Link href={`/shop?brand=${b.slug}`} className="flex h-full flex-col gap-4 border border-hairline bg-paper px-4 pb-[22px] pt-4 text-ink transition-colors duration-[250ms] hover:border-ink">
+                <Link href={brandHref(b.slug)} className="flex h-full flex-col gap-4 border border-hairline bg-paper px-4 pb-[22px] pt-4 text-ink transition-colors duration-[250ms] hover:border-ink">
                   <Photo src={fb.image} sizes="30vw" className="aspect-[3/2]" />
                   <span className="flex items-baseline justify-between">
                     <span className="font-display text-4xl font-medium leading-none">{b.name}</span>

@@ -10,6 +10,7 @@ import type { Predictive } from "@/lib/catalog";
 import type { CardProduct } from "@/lib/types";
 import { articlesFor, splitHit } from "./usePredictive";
 import { Photo } from "../ProductImage";
+import { brandHref, goalHref } from "@/content/seo";
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <span className="text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">{children}</span>
@@ -64,7 +65,7 @@ export function ResultsPanel({ q, data, onNavigate }: { q: string; data: Predict
             <Label>Brands</Label>
             <div className="flex flex-wrap gap-1.5">
               {data.brands.map((b) => (
-                <Link key={b.slug} href={`/shop?brand=${b.slug}`} onClick={onNavigate} className="rounded-pill border border-hairline px-[11px] py-[7px] text-[13px] font-medium leading-none hover:border-ink">
+                <Link key={b.slug} href={brandHref(b.slug)} onClick={onNavigate} className="rounded-pill border border-hairline px-[11px] py-[7px] text-[13px] font-medium leading-none hover:border-ink">
                   {b.name}
                 </Link>
               ))}
@@ -76,7 +77,7 @@ export function ResultsPanel({ q, data, onNavigate }: { q: string; data: Predict
             <Label>Common goals</Label>
             <div className="flex flex-wrap gap-1.5">
               {data.goals.map((g) => (
-                <Link key={g.slug} href={`/shop?goal=${g.slug}`} onClick={onNavigate} className="rounded-pill bg-paper-shade px-[11px] py-[7px] text-[13px] font-medium leading-none hover:bg-mint">
+                <Link key={g.slug} href={goalHref(g.slug)} onClick={onNavigate} className="rounded-pill bg-paper-shade px-[11px] py-[7px] text-[13px] font-medium leading-none hover:bg-mint">
                   {g.name}
                 </Link>
               ))}

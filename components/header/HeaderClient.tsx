@@ -14,6 +14,7 @@ import type { HeaderData } from "./types";
 import { usePredictive } from "./usePredictive";
 import { Photo } from "../ProductImage";
 import { AccountButton } from "../auth/AccountButton";
+import { goalHref } from "@/content/seo";
 
 const NAV = [
   { label: "Shop", href: "/shop", mega: true },
@@ -388,7 +389,7 @@ function MegaMenu({ data, open, onNavigate }: { data: HeaderData; open: boolean;
         <div className="flex flex-col gap-3">
           <span className={head}>By goal</span>
           {data.goals.map((g) => (
-            <Link key={g.slug} href={`/shop?goal=${g.slug}`} onClick={onNavigate} className="text-base leading-[1.2] text-ink hover:text-slate-700">
+            <Link key={g.slug} href={goalHref(g.slug)} onClick={onNavigate} className="text-base leading-[1.2] text-ink hover:text-slate-700">
               {g.name}
             </Link>
           ))}

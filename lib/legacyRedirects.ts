@@ -4,7 +4,7 @@
 //   320 /product/<slug>/   → same slug under /products/ (all 320 match)
 //    42 /product-category/ → the closest of the 8 shop categories
 //   272 /product-tag/      → a diet filter when the tag names one, else the shop
-//    34 /brand/<slug>/     → that brand in the shop (2 slugs were renamed)
+//    34 /brand/<slug>/     → that brand's page (2 slugs were renamed)
 //   pages (about, contact, cart, account…) → their new equivalent
 // Theme demo pages (/portfolio/, /elementor-hf/) are left to 404: they were never real content.
 // Used by next.config.ts; harmless on the demo host.
@@ -107,9 +107,9 @@ export const legacyRedirects: Redirect[] = [
   ]),
   ...both("/product-category/:rest*", "/shop"),
   // Brands: two were renamed, the rest keep their slug.
-  ...both("/brand/minami-nutrition", "/shop?brand=minami"),
-  ...both("/brand/bio-reasearch", "/shop?brand=bio-research"),
-  ...both("/brand/:slug", "/shop?brand=:slug"),
+  ...both("/brand/minami-nutrition", "/brands/minami"),
+  ...both("/brand/bio-reasearch", "/brands/bio-research"),
+  ...both("/brand/:slug", "/brands/:slug"),
   // Tags.
   ...TAG_DIETS.flatMap(([pattern, diet]) => both(`/product-tag/:tag(${pattern})`, `/shop?diet=${encodeURIComponent(diet)}`)),
   ...both("/product-tag/:tag*", "/shop"),

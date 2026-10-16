@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { brandHref } from "@/content/seo";
 import { getCatalog } from "@/lib/catalog";
 
 export const metadata: Metadata = { title: "Brands A–Z", description: "Every brand on the Organoli shelf.", alternates: { canonical: "/brands" } };
@@ -31,7 +32,7 @@ export default async function BrandsPage() {
             <ul className="m-0 list-none p-0">
               {list.map((b) => (
                 <li key={b.slug}>
-                  <Link href={`/shop?brand=${b.slug}`} className="flex min-h-11 items-center justify-between border-b border-hairline-soft text-base hover:text-slate-700">
+                  <Link href={brandHref(b.slug)} className="flex min-h-11 items-center justify-between border-b border-hairline-soft text-base hover:text-slate-700">
                     <span>{b.name}</span>
                     <span className="text-[13px] tabular-nums text-slate-text">{b.productCount}</span>
                   </Link>

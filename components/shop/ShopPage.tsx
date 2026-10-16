@@ -3,24 +3,51 @@ import { categoryNotes } from "@/content/editorial";
 import { getCatalog, FILTER_KEYS } from "@/lib/catalog";
 import { parseFilters } from "@/lib/filters";
 import { CATEGORY_BY_SLUG, GOAL_BY_SLUG } from "@/lib/taxonomy";
-import type { CategorySlug, GoalSlug } from "@/lib/types";
+import type { Brand, CategorySlug, GoalSlug, Product } from "@/lib/types";
+import { GOAL_COPY } from "@/content/seo";
 import { ShopShell } from "./ShopShell";
 import { PharmacistMark } from "@/components/PharmacistMark";
 
 type SP = Record<string, string | string[] | undefined>;
 
-export async function ShopPage({ category, searchParams }: { category: CategorySlug | null; searchParams: SP }) {
+/** "Thorne on the Organoli shelf: 8 products, from magnesium, zinc and B complex. …" — built from what we stock. */
+export function brandIntro(brand: Brand, products: Product[]) {
+  const counts = new Map<string, number>();
+  for (const p of products) for (const i of p.ingredients.slice(0, 1)) counts.set(i, (counts.get(i) ?? 0) + 1);
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([i]) => i.replace(/^([A-Z])([a-z]+)\b/, (_, a: string, b: string) => a.toLowerCase() + b)); // "Magnesium" → "magnesium", "CoQ10" stays
+  const range = top.length ? `, from ${top.length > 1 ? `${top.slice(0, -1).join(", ")} and ${top.at(-1)}` : top[0]}` : "";
+  return `${brand.name} on the Organoli shelf: ${products.length} product${products.length === 1 ? "" : "s"}${range}. Each one chosen by a pharmacist, checked on arrival in Beirut and delivered across Lebanon.`;
+}
+
+/**
+ * The shop listing. `category`, `goal` or `brand` narrows it to a landing page
+ * (/shop/<category>, /goals/<goal>, /brands/<brand>); none of them = all products.
+ */
+export async function ShopPage({ category = null, goal = null, brand = null, searchParams }: { category?: CategorySlug | null; goal?: GoalSlug | null; brand?: Brand | null; searchParams: SP }) {
   const catalog = await getCatalog();
   const filters = parseFilters(searchParams);
   const meta = category ? CATEGORY_BY_SLUG[category] : null;
-  const base = category ? catalog.inCategory(category) : catalog.getProducts();
+  const goalMeta = goal ? GOAL_BY_SLUG[goal] : null;
+  const base = category
+    ? catalog.inCategory(category)
+    : goal
+      ? catalog.getProducts().filter((p) => p.goals.includes(goal))
+      : brand
+        ? catalog.getProducts().filter((p) => p.brandSlug === brand.slug)
+        : catalog.getProducts();
   const { results, facets } = catalog.listProducts(base, filters);
   const note = categoryNotes[category ?? "all"];
 
-  // A single goal (from "Shop by goal") becomes the page title on /shop
-  const singleGoal = !category && filters.goal.length === 1 ? GOAL_BY_SLUG[filters.goal[0] as GoalSlug] : null;
-  const title = meta?.name ?? singleGoal?.name ?? "All products";
-  const intro = meta?.intro ?? (singleGoal ? `${singleGoal.ingredients}. The short list we’d choose ourselves — filter by form, diet or format.` : `Everything on the shelf — ${base.length} products, each chosen by a pharmacist and listed with its full specification.`);
+  // A single goal filter on /shop still gets the goal's name as its title
+  const singleGoal = goalMeta ?? (!category && !brand && filters.goal.length === 1 ? GOAL_BY_SLUG[filters.goal[0] as GoalSlug] : null);
+  const title = meta?.name ?? brand?.name ?? singleGoal?.name ?? "All products";
+  const intro =
+    meta?.intro ??
+    (goal ? GOAL_COPY[goal].intro : null) ??
+    (brand ? brandIntro(brand, base) : null) ??
+    (singleGoal ? `${singleGoal.ingredients}. The short list we’d choose ourselves — filter by form, diet or format.` : `Everything on the shelf — ${base.length} products, each chosen by a pharmacist and listed with its full specification.`);
+  // Where the breadcrumb's middle step goes (Shop › <parent> › <this page>)
+  const parent: [string, string] | null = meta ? ["Shop", "/shop"] : goal ? ["Shop by goal", "/#shop-by-goal"] : brand ? ["Brands", "/brands"] : null;
 
   const labels: Record<string, string> = {};
   for (const k of FILTER_KEYS) for (const v of filters[k]) labels[`${k}:${v}`] = catalog.filterLabel(k, v);
@@ -35,16 +62,17 @@ export async function ShopPage({ category, searchParams }: { category: CategoryS
           <span aria-hidden="true" className="hidden lg:inline">
             /
           </span>
-          {meta ? (
+          {parent ? (
             <>
-              <Link href="/shop" className="hover:text-ink">
-                <span className="lg:hidden">← </span>Shop
+              <Link href={parent[1]} className="hover:text-ink">
+                <span className="lg:hidden">← </span>
+                {parent[0]}
               </Link>
               <span aria-hidden="true" className="hidden lg:inline">
                 /
               </span>
               <span aria-current="page" className="hidden text-ink lg:inline">
-                {meta.name}
+                {title}
               </span>
             </>
           ) : (
@@ -78,7 +106,7 @@ export async function ShopPage({ category, searchParams }: { category: CategoryS
         total={results.length}
         labels={labels}
         learn={note.learn}
-        showForms={!!category}
+        showForms={!!category || !!goal}
       />
 
       <section className="mx-4 mb-16 grid items-center gap-6 bg-paper-shade p-6 lg:mx-12 lg:mb-[100px] lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10 lg:p-10">

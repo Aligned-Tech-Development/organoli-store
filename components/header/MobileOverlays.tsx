@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { articleMeta } from "@/content/editorial";
+import { brandHref, goalHref } from "@/content/seo";
 import { popularSearches, site, whatsappLink } from "@/content/site";
 import { money } from "@/lib/format";
 import { Logo } from "../Logo";
@@ -57,7 +58,7 @@ export function MobileMenu({ data, open, onClose }: { data: HeaderData; open: bo
             <Label>By goal</Label>
             <div className="flex flex-wrap gap-2">
               {data.goals.map((g) => (
-                <Link key={g.slug} href={`/shop?goal=${g.slug}`} onClick={onClose} className="flex h-10 items-center rounded-pill border border-hairline px-3.5 text-sm font-medium">
+                <Link key={g.slug} href={goalHref(g.slug)} onClick={onClose} className="flex h-10 items-center rounded-pill border border-hairline px-3.5 text-sm font-medium">
                   {g.name}
                 </Link>
               ))}
@@ -103,7 +104,7 @@ export function MobileSearch({ data, open, onClose }: { data: HeaderData; open: 
     router.push(href);
   };
 
-  const chips = res ? [...res.categories.map((c) => ({ l: `${c.name} · ${c.count}`, h: `/shop/${c.slug}` })), ...res.goals.map((g) => ({ l: g.name, h: `/shop?goal=${g.slug}` })), ...res.brands.map((b) => ({ l: b.name, h: `/shop?brand=${b.slug}` }))] : [];
+  const chips = res ? [...res.categories.map((c) => ({ l: `${c.name} · ${c.count}`, h: `/shop/${c.slug}` })), ...res.goals.map((g) => ({ l: g.name, h: goalHref(g.slug) })), ...res.brands.map((b) => ({ l: b.name, h: brandHref(b.slug) }))] : [];
   const sugg = res?.suggestions.length ? res.suggestions : q.trim() ? [q.trim().toLowerCase()] : [];
   const art = q.trim() ? articlesFor(q, 1)[0] : null;
 

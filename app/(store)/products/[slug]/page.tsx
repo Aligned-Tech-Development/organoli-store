@@ -7,6 +7,7 @@ import { BuyBox } from "@/components/product/BuyBox";
 import { MobileTabs, Warnings } from "@/components/product/Bits";
 import { Gallery } from "@/components/product/Gallery";
 import { defaultWarnings, productContent } from "@/content/products";
+import { brandHref } from "@/content/seo";
 import { site, whatsappLink } from "@/content/site";
 import { getCatalog } from "@/lib/catalog";
 import { JsonLd, breadcrumbLd, productLd } from "@/lib/structuredData";
@@ -114,8 +115,8 @@ export default async function ProductPage({ params }: { params: Params }) {
 
         <div className="flex flex-col gap-3 px-4 py-5 lg:gap-[22px] lg:px-0 lg:py-0">
           <div className="flex flex-col gap-3">
-            {p.brand && (
-              <Link href={`/shop?brand=${p.brandSlug}`} className="text-[11px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text hover:text-ink lg:text-xs">
+            {p.brand && p.brandSlug && (
+              <Link href={brandHref(p.brandSlug)} className="text-[11px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text hover:text-ink lg:text-xs">
                 {p.brand}
               </Link>
             )}

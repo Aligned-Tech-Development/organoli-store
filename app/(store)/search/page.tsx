@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
 import { articleMeta } from "@/content/editorial";
+import { brandHref, goalHref } from "@/content/seo";
 import { popularSearches, whatsappLink } from "@/content/site";
 import { articlesFor } from "@/lib/articles";
 import { getCatalog } from "@/lib/catalog";
@@ -88,12 +89,12 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
                 </Link>
               ))}
               {meta.goals.map((g) => (
-                <Link key={g.slug} href={`/shop?goal=${g.slug}`} className="flex h-10 items-center rounded-pill bg-paper-shade px-4 text-sm font-medium hover:bg-mint">
+                <Link key={g.slug} href={goalHref(g.slug)} className="flex h-10 items-center rounded-pill bg-paper-shade px-4 text-sm font-medium hover:bg-mint">
                   {g.name}
                 </Link>
               ))}
               {meta.brands.map((b) => (
-                <Link key={b.slug} href={`/shop?brand=${b.slug}`} className="flex h-10 items-center rounded-pill border border-hairline px-4 text-sm font-medium hover:border-ink">
+                <Link key={b.slug} href={brandHref(b.slug)} className="flex h-10 items-center rounded-pill border border-hairline px-4 text-sm font-medium hover:border-ink">
                   {b.name}
                 </Link>
               ))}
