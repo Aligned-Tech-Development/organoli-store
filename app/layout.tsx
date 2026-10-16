@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   title: { default: "Organoli — The shelf people trust", template: "%s · Organoli" },
   description: "Pharmacist-curated supplements in Beirut. Every product checked on arrival and listed with its full specification — dose, form and what it is for.",
   openGraph: { siteName: "Organoli", type: "website", locale: "en_LB" },
+  // organoli.com's existing Google Search Console ownership tag (set by Site Kit on the old
+  // WordPress site). Kept so the property — and its search history — stays verified after launch.
+  verification: { google: "_OUtTBR500CcTxIMxeZqv8aD1d_h9cButlqtiSy1nEM" },
   ...(isDemoHost ? { robots: { index: false, follow: false } } : {}),
 };
 
