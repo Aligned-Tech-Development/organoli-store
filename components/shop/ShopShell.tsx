@@ -21,10 +21,11 @@ export interface Facet {
 export interface ShopShellProps {
   filters: Filters;
   facets: Record<FilterKey, Facet[]>;
+  /** The current page of results only. */
   results: CardProduct[];
   total: number;
+  pageCount: number;
   labels: Record<string, string>;
-  learn: { title: string; dek: string; href: string; minutes: number };
   showForms: boolean;
   extraParams?: Record<string, string>;
 }
@@ -37,27 +38,18 @@ const GROUPS: [FilterKey, string][] = [
   ["format", "Format"],
 ];
 
-const PAGE = 24;
-
-export function ShopShell({ filters, facets, results, total, labels, learn, showForms, extraParams = {} }: ShopShellProps) {
+export function ShopShell({ filters, facets, results, total, pageCount, labels, showForms, extraParams = {} }: ShopShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [pending, start] = useTransition();
   const [sideOpen, setSideOpen] = useState(true);
   const [sheet, setSheet] = useState(false);
   const [openG, setOpenG] = useState<Record<string, boolean>>({ goal: true, brand: false, form: false, diet: true, format: false });
-  const [shown, setShown] = useState(PAGE);
   useScrollLock(sheet);
 
-  // Reset pagination whenever the result set changes
-  const key = JSON.stringify(filters);
-  const [lastKey, setLastKey] = useState(key);
-  if (key !== lastKey) {
-    setLastKey(key);
-    setShown(PAGE);
-  }
-
-  const go = (f: Filters) => start(() => router.replace(`${pathname}${filtersToSearch(f, extraParams)}`, { scroll: false }));
+  // Any filter or sort change starts again from page 1
+  const go = (f: Filters) => start(() => router.replace(`${pathname}${filtersToSearch({ ...f, page: 1 }, extraParams)}`, { scroll: false }));
+  const pageHref = (n: number) => `${pathname}${filtersToSearch({ ...filters, page: n }, extraParams)}`;
   const tog = (k: FilterKey, v: string) => go(toggleValue(filters, k, v));
   const has = (k: FilterKey, v: string) => filters[k].includes(v);
   const clearAll = () => go(emptyFilters(filters.sort));
@@ -69,9 +61,6 @@ export function ShopShell({ filters, facets, results, total, labels, learn, show
   if (filters.min != null) active.push({ label: `From $${filters.min}`, remove: () => go({ ...filters, min: null }) });
   if (filters.max != null) active.push({ label: `Up to $${filters.max}`, remove: () => go({ ...filters, max: null }) });
 
-  const visible = results.slice(0, shown);
-  const cells: (CardProduct | "learn")[] = [...visible];
-  if (cells.length > 3) cells.splice(3, 0, "learn");
 
   const forms = facets.form.slice(0, 5);
 
@@ -166,7 +155,7 @@ export function ShopShell({ filters, facets, results, total, labels, learn, show
         )}
       </div>
 
-      <section className="flex px-4 pb-16 pt-5 lg:px-12 lg:pb-[100px] lg:pt-8">
+      <section id="results" className="flex scroll-mt-[190px] px-4 pb-16 pt-5 lg:scroll-mt-[calc(var(--hdr,0px)+80px)] lg:px-12 lg:pb-[100px] lg:pt-8">
         <aside
           id="filters"
           aria-label="Filters"
@@ -239,21 +228,11 @@ export function ShopShell({ filters, facets, results, total, labels, learn, show
         </aside>
 
         <div className={`min-w-0 flex-1 transition-opacity duration-200 ${pending ? "opacity-60" : ""}`}>
-          <div className={`grid grid-flow-row-dense content-start gap-x-3 gap-y-8 lg:gap-x-6 lg:gap-y-12 ${sideOpen ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2 lg:grid-cols-4"}`} style={{ transition: "grid-template-columns .4s" }}>
-            {cells.map((c) =>
-              c === "learn" ? (
-                <Link key="learn" href={learn.href} className="on-dark col-span-2 flex min-h-[260px] flex-col justify-between bg-ink p-7 text-paper lg:col-span-1 lg:min-h-[420px]">
-                  <span className="text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] text-mint">Learn · {learn.minutes} min</span>
-                  <span className="flex flex-col gap-4">
-                    <span className="font-display text-[38px] font-medium leading-[.95] lg:text-[46px]">{learn.title}</span>
-                    <span className="text-[15px] leading-normal text-mist">{learn.dek}</span>
-                    <span className="text-xs font-semibold uppercase leading-none tracking-[.14em]">Read the guide →</span>
-                  </span>
-                </Link>
-              ) : (
-                <ProductCard key={c.slug} p={c} sizes={sideOpen ? "(min-width:1024px) 25vw, 50vw" : "(min-width:1024px) 20vw, 50vw"} />
-              ),
-            )}
+          {/* At most 4 per row: 4 × 4 = one page */}
+          <div className={`grid content-start gap-x-3 gap-y-8 lg:gap-x-6 lg:gap-y-12 ${sideOpen ? "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-2 lg:grid-cols-4"}`} style={{ transition: "grid-template-columns .4s" }}>
+            {results.map((p) => (
+              <ProductCard key={p.slug} p={p} sizes={sideOpen ? "(min-width:1280px) 18vw, (min-width:1024px) 25vw, 50vw" : "(min-width:1024px) 22vw, 50vw"} />
+            ))}
             {total === 0 && (
               <div className="col-span-full flex flex-col items-start gap-3.5 py-[60px]">
                 <span className="font-display text-[36px] font-medium leading-none lg:text-[44px]">Nothing on the shelf matches all of that.</span>
@@ -264,15 +243,13 @@ export function ShopShell({ filters, facets, results, total, labels, learn, show
               </div>
             )}
           </div>
-          {shown < results.length && (
-            <div className="mt-14 flex flex-col items-center gap-3">
-              <span className="text-sm text-slate-text">
-                Showing {shown} of {results.length}
-              </span>
-              <button type="button" onClick={() => setShown((n) => n + PAGE)} className="h-14 rounded-sm border border-ink px-8 text-[13px] font-semibold uppercase leading-none tracking-[.16em] hover:bg-ink hover:text-paper">
-                Show more
-              </button>
-            </div>
+          {pageCount > 1 && (
+            <Pagination
+              page={filters.page}
+              pageCount={pageCount}
+              href={pageHref}
+              onNavigate={() => document.getElementById("results")?.scrollIntoView({ behavior: "smooth" })}
+            />
           )}
         </div>
       </section>
@@ -288,6 +265,60 @@ export function ShopShell({ filters, facets, results, total, labels, learn, show
         clearAll={clearAll}
       />
     </>
+  );
+}
+
+/** Page numbers with gaps: 1 … 4 5 6 … 12 */
+function pageList(page: number, count: number): (number | "gap")[] {
+  const keep = new Set([1, count, page - 1, page, page + 1].filter((n) => n >= 1 && n <= count));
+  const out: (number | "gap")[] = [];
+  let prev = 0;
+  for (const n of [...keep].sort((a, b) => a - b)) {
+    if (n - prev === 2) out.push(n - 1);
+    else if (n - prev > 2) out.push("gap");
+    out.push(n);
+    prev = n;
+  }
+  return out;
+}
+
+function Pagination({ page, pageCount, href, onNavigate }: { page: number; pageCount: number; href: (n: number) => string; onNavigate: () => void }) {
+  const box = "flex h-11 min-w-11 items-center justify-center rounded-sm border px-3 text-sm font-medium leading-none tabular-nums transition-colors duration-200";
+  const step = (n: number, label: string, glyph: string) =>
+    n >= 1 && n <= pageCount ? (
+      <Link href={href(n)} scroll={false} onClick={onNavigate} aria-label={label} className={`${box} border-ink hover:bg-ink hover:text-paper`}>
+        {glyph}
+      </Link>
+    ) : (
+      <span aria-hidden="true" className={`${box} border-hairline text-slate-text opacity-50`}>
+        {glyph}
+      </span>
+    );
+  return (
+    <nav aria-label="Pagination" className="mt-14 flex flex-col items-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
+        {step(page - 1, "Previous page", "←")}
+        {pageList(page, pageCount).map((n, i) =>
+          n === "gap" ? (
+            <span key={`gap-${i}`} aria-hidden="true" className="px-1 text-slate-text">
+              …
+            </span>
+          ) : n === page ? (
+            <span key={n} aria-current="page" className={`${box} border-ink bg-ink text-paper`}>
+              {n}
+            </span>
+          ) : (
+            <Link key={n} href={href(n)} scroll={false} onClick={onNavigate} aria-label={`Page ${n}`} className={`${box} border-hairline hover:border-ink`}>
+              {n}
+            </Link>
+          ),
+        )}
+        {step(page + 1, "Next page", "→")}
+      </div>
+      <span className="text-sm text-slate-text">
+        Page {page} of {pageCount}
+      </span>
+    </nav>
   );
 }
 

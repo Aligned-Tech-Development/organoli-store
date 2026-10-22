@@ -12,18 +12,20 @@ import { MobileMenu, MobileSearch } from "./MobileOverlays";
 import { EmptyPanel, ResultsPanel } from "./SearchPanels";
 import type { HeaderData } from "./types";
 import { usePredictive } from "./usePredictive";
-import { Photo } from "../ProductImage";
 import { AccountButton } from "../auth/AccountButton";
 import { goalHref } from "@/content/seo";
 
 const NAV = [
-  { label: "Shop", href: "/shop", mega: true },
+  { label: "Categories", href: "/shop", mega: true },
+  { label: "Best Sellers", href: "/#best-sellers" },
   { label: "Shop by Goal", href: "/#shop-by-goal" },
   { label: "Brands", href: "/brands" },
-  { label: "New & Trending", href: "/shop?sort=new" },
-  { label: "How We Curate", href: "/#how-we-curate" },
+  { label: "New In", href: "/shop?sort=new" },
   { label: "Learn", href: "/#learn" },
 ];
+const BRANDS_NAV = NAV.findIndex((n) => n.href === "/brands");
+
+const PROMOS = (threshold: number) => [`Free Beirut delivery over $${threshold}`, "Next-day dispatch before 4 PM", "Pharmacist-checked, every product"];
 
 export function HeaderClient({ data }: { data: HeaderData }) {
   const pathname = usePathname();
@@ -108,25 +110,22 @@ export function HeaderClient({ data }: { data: HeaderData }) {
     </div>
   );
 
-  const activeNav = pathname.startsWith("/shop") || pathname.startsWith("/products") ? 0 : pathname.startsWith("/brands") ? 2 : -1;
+  const activeNav = pathname.startsWith("/shop") || pathname.startsWith("/products") ? 0 : pathname.startsWith("/brands") ? BRANDS_NAV : -1;
   const scrim = searchOpen || megaOpen;
 
   return (
     <>
       <header className="relative z-[60] bg-paper font-sans text-ink">
         {/* Utility bar */}
-        <div className="on-dark flex h-9 items-center justify-center bg-ink px-4 text-[10px] font-medium uppercase leading-[1.3] tracking-[.14em] text-paper lg:justify-between lg:px-12 lg:text-[11px] lg:leading-none lg:tracking-[.16em]">
-          <span className="hidden opacity-75 lg:inline">
-            {site.city} · Est. {site.established}
-          </span>
-          <span className="text-center">
-            <span className="lg:hidden">Free Beirut delivery over ${site.freeDeliveryThreshold} · Dispatch before 4 PM</span>
-            <span className="hidden lg:inline">
-              Free delivery in Beirut over ${site.freeDeliveryThreshold} <span className="px-2 text-mint">+</span> Next-day dispatch before 4 PM
-            </span>
-          </span>
-          <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="hidden opacity-75 transition-opacity hover:opacity-100 lg:inline">
-            Pharmacist on WhatsApp →
+        <div className="on-dark relative flex h-9 items-center overflow-hidden bg-ink text-[10px] font-medium uppercase leading-none tracking-[.14em] text-paper lg:text-[11px] lg:tracking-[.16em]">
+          <PromoMarquee messages={PROMOS(site.freeDeliveryThreshold)} />
+          <a
+            href={whatsappLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute inset-y-0 right-0 hidden items-center bg-ink border-l border-paper/20 pl-6 pr-12 transition-colors hover:text-mint lg:flex"
+          >
+            Ask a pharmacist →
           </a>
         </div>
 
@@ -150,7 +149,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
                     open("search");
                   }}
                   onFocus={() => open("search")}
-                  placeholder={`Search ${data.totals.products} products, ingredients or brands — try “magnesium”`}
+                  placeholder="Search products, ingredients or brands"
                   className="min-w-0 flex-1 border-0 bg-transparent text-base leading-none text-ink outline-none placeholder:text-slate-text [&:focus-visible]:shadow-none [&:focus-visible]:outline-none"
                   autoComplete="off"
                   role="combobox"
@@ -194,7 +193,7 @@ export function HeaderClient({ data }: { data: HeaderData }) {
             if (megaOpen) close();
           }}
         >
-          <nav aria-label="Primary" className="flex h-[50px] items-center justify-between border-y border-hairline px-12">
+          <nav aria-label="Primary" className="flex h-[50px] items-center justify-center border-y border-hairline px-12">
             <div className="flex h-full gap-[34px]">
               {NAV.map((n, i) => {
                 const on = hoverNav === i || (hoverNav === -1 && activeNav === i);
@@ -225,10 +224,6 @@ export function HeaderClient({ data }: { data: HeaderData }) {
                   </Link>
                 );
               })}
-            </div>
-            <div className="flex gap-[22px] text-xs font-medium uppercase leading-none tracking-[.12em] text-slate-text">
-              <span>Stocked in Lebanon</span>
-              <span>{site.currency}</span>
             </div>
           </nav>
           <MegaMenu data={data} open={megaOpen && !compact} onNavigate={close} />
@@ -376,15 +371,26 @@ function MegaMenu({ data, open, onNavigate }: { data: HeaderData; open: boolean;
       aria-hidden={!open}
       inert={!open}
     >
-      <div className="grid grid-cols-[1fr_1fr_1fr_1.25fr_1.25fr] gap-10 px-12 pb-8 pt-9">
+      <div className="grid grid-cols-[2.6fr_1fr_1fr_1.1fr] gap-10 px-12 pb-8 pt-9">
         <div className="flex flex-col gap-3">
           <span className={head}>Categories</span>
-          {data.categories.map((c) => (
-            <Link key={c.slug} href={`/shop/${c.slug}`} onClick={onNavigate} className="flex justify-between text-base leading-[1.2] text-ink transition-[padding,color] hover:pl-1 hover:text-slate-700">
-              <span>{c.name}</span>
-              <span className="text-[13px] tabular-nums text-slate-text">{c.count}</span>
-            </Link>
-          ))}
+          <div className="grid grid-cols-4 gap-x-4 gap-y-5">
+            {data.categories.map((c) => (
+              <Link key={c.slug} href={`/shop/${c.slug}`} onClick={onNavigate} className="group flex flex-col gap-2 text-ink hover:text-slate-700">
+                <span className="relative aspect-square overflow-hidden rounded-sm border border-hairline bg-paper-shade transition-transform duration-300 ease-out group-hover:-translate-y-0.5">
+                  {c.image && (
+                    <span className="absolute inset-[14%]">
+                      <Image src={c.image.src} alt="" fill sizes="10vw" className="object-contain mix-blend-multiply" />
+                    </span>
+                  )}
+                </span>
+                <span className="flex items-baseline justify-between gap-1.5">
+                  <span className="text-[15px] font-medium leading-[1.2]">{c.short}</span>
+                  <span className="text-[12px] tabular-nums text-slate-text">{c.count}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
         <div className="flex flex-col gap-3">
           <span className={head}>By goal</span>
@@ -412,11 +418,6 @@ function MegaMenu({ data, open, onNavigate }: { data: HeaderData; open: boolean;
             ))}
           </div>
         </div>
-        <Link href="/#the-edits" onClick={onNavigate} className="flex flex-col gap-3 text-ink">
-          <Photo src={data.sleepEdit.image} sizes="20vw" duotone className="relative aspect-[4/5]" />
-          <span className="text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">The edit · {data.sleepEdit.count} products</span>
-          <span className="font-display text-[30px] font-medium leading-none">{data.sleepEdit.title} →</span>
-        </Link>
         {data.newProduct && (
           <Link href={`/products/${data.newProduct.slug}`} onClick={onNavigate} className="flex flex-col gap-3 text-ink">
             <span className="relative aspect-[4/5] overflow-hidden bg-paper-shade">
@@ -445,6 +446,27 @@ function MegaMenu({ data, open, onNavigate }: { data: HeaderData; open: boolean;
           Not sure where to start? Find what fits your routine →
         </Link>
       </div>
+    </div>
+  );
+}
+
+/** Healf-style scrolling strip. The run is doubled so the -50% marquee loops seamlessly. */
+function PromoMarquee({ messages }: { messages: string[] }) {
+  const run = Array.from({ length: 4 }, () => messages).flat();
+  return (
+    <div className="flex w-max whitespace-nowrap motion-safe:animate-marquee">
+      {[0, 1].map((half) => (
+        <span key={half} className="flex" aria-hidden={half === 1 || undefined}>
+          {run.map((m, i) => (
+            <span key={i} className="flex items-center">
+              {m}
+              <span aria-hidden="true" className="px-6 text-mint">
+                +
+              </span>
+            </span>
+          ))}
+        </span>
+      ))}
     </div>
   );
 }

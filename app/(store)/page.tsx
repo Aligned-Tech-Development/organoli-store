@@ -14,28 +14,17 @@ import { bestSellers, essentialsTabs, heroProduct, pharmacistPicks } from "@/con
 import { site } from "@/content/site";
 import { getCatalog, type Catalog } from "@/lib/catalog";
 import { roundWords } from "@/lib/format";
-import type { CategorySlug } from "@/lib/types";
+import type { CategorySlug, Product } from "@/lib/types";
 import { brandHref } from "@/content/seo";
 
-function heroCard(catalog: Catalog): HeroProduct | null {
-  const p = catalog.getProduct(heroProduct);
-  if (!p) return null;
-  const words = p.name.split(" ");
-  const mid = Math.ceil(words.length / 2);
-  return {
-    slug: p.slug,
-    no: String(p.id).padStart(4, "0"),
-    lines: words.length > 1 ? [words.slice(0, mid).join(" "), words.slice(mid).join(" ")] : [p.name, ""],
-    rows: [
-      ["Dose", p.dose ?? "See label"],
-      ["Count", p.count ?? "—"],
-      ["Form", [p.form ?? p.format, p.dietary.includes("Vegan") ? "vegan" : null].filter(Boolean).join(" · ") || "—"],
-    ],
-    price: p.price,
-    short: p.name,
-    spec: p.specLine ?? "",
-  };
-}
+const heroCard = (p: Product): HeroProduct => ({
+  slug: p.slug,
+  name: p.name,
+  brand: p.brand,
+  spec: p.specLine ?? "",
+  price: p.price,
+  image: p.images[0] ?? null,
+});
 
 const TILE_BG = ["ph-paper", "ph-mint"];
 
@@ -71,22 +60,11 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero headline={`${roundWords(totals.brands)} brands.`} product={heroCard(catalog)} />
-
-      {/* Trust strip */}
-      <div className="no-scrollbar flex overflow-x-auto border-b border-hairline lg:grid lg:grid-cols-4">
-        {trustStrip.map((t) => (
-          <div key={t} className="flex flex-none items-center gap-3 border-r border-hairline px-4 py-4 text-[11px] font-semibold uppercase leading-[1.2] tracking-[.16em] lg:px-12 lg:py-[22px] lg:text-xs">
-            <span aria-hidden="true" className="text-base text-slate-700">
-              +
-            </span>
-            {t}
-          </div>
-        ))}
-      </div>
+      {/* Best sellers rotate in the hero. Random picks until we have real sales data (re-rolled on every revalidate). */}
+      <Hero headline={`${roundWords(totals.brands)} brands.`} products={catalog.randomPicks(8).map(heroCard)} />
 
       {/* Shop by category */}
-      <section className="px-4 pb-6 pt-9 lg:px-12 lg:pb-[72px] lg:pt-16" aria-labelledby="cat-title">
+      <section id="categories" className="scroll-mt-20 px-4 pb-6 pt-9 lg:px-12 lg:pb-[72px] lg:pt-16" aria-labelledby="cat-title">
         <div className="mb-5 flex items-end justify-between gap-6 lg:mb-7">
           <h2 id="cat-title" className="m-0 font-display text-[38px] font-medium leading-[.95] lg:text-[52px]">
             Shop by category
@@ -115,6 +93,18 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Trust strip */}
+      <div className="no-scrollbar flex overflow-x-auto border-y border-hairline lg:grid lg:grid-cols-4">
+        {trustStrip.map((t) => (
+          <div key={t} className="flex flex-none items-center gap-3 border-r border-hairline px-4 py-4 text-[11px] font-semibold uppercase leading-[1.2] tracking-[.16em] lg:px-12 lg:py-[22px] lg:text-xs">
+            <span aria-hidden="true" className="text-base text-slate-700">
+              +
+            </span>
+            {t}
+          </div>
+        ))}
+      </div>
 
       <Favourites
         tabs={[

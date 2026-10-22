@@ -1,4 +1,4 @@
-// Shop filters live in the URL: ?goal=sleep,stress&diet=Vegan&format=Capsule&stock=1&sort=lo
+// Shop filters live in the URL: ?goal=sleep,stress&diet=Vegan&format=Capsule&stock=1&sort=lo&page=2
 // This module is shared by server pages (to filter) and client controls (to build URLs).
 
 export const FILTER_KEYS = ["goal", "brand", "form", "diet", "format"] as const;
@@ -15,7 +15,12 @@ export interface Filters {
   sort: Sort;
   min: number | null;
   max: number | null;
+  /** 1-based listing page. */
+  page: number;
 }
+
+/** Products per listing page. */
+export const PAGE_SIZE = 16;
 
 type RawParams = Record<string, string | string[] | undefined>;
 
@@ -42,6 +47,7 @@ export function parseFilters(sp: RawParams): Filters {
     sort: sort && ["rec", "lo", "hi", "new"].includes(sort) ? sort : "rec",
     min: num(sp.min),
     max: num(sp.max),
+    page: Math.floor(num(sp.page) ?? 1),
   };
 }
 
@@ -52,6 +58,7 @@ export function filtersToSearch(f: Filters, extra: Record<string, string> = {}):
   if (f.min != null) p.set("min", String(f.min));
   if (f.max != null) p.set("max", String(f.max));
   if (f.sort !== "rec") p.set("sort", f.sort);
+  if (f.page > 1) p.set("page", String(f.page));
   for (const [k, v] of Object.entries(extra)) if (v) p.set(k, v);
   const s = p.toString();
   return s ? `?${s}` : "";
@@ -62,7 +69,7 @@ export function toggleValue(f: Filters, key: FilterKey, value: string): Filters 
   return { ...f, [key]: cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value] };
 }
 
-export const emptyFilters = (sort: Sort = "rec"): Filters => ({ goal: [], brand: [], form: [], diet: [], format: [], stock: false, sort, min: null, max: null });
+export const emptyFilters = (sort: Sort = "rec"): Filters => ({ goal: [], brand: [], form: [], diet: [], format: [], stock: false, sort, min: null, max: null, page: 1 });
 
 export const activeCount = (f: Filters) => FILTER_KEYS.reduce((a, k) => a + f[k].length, 0) + (f.stock ? 1 : 0) + (f.min != null ? 1 : 0) + (f.max != null ? 1 : 0);
 

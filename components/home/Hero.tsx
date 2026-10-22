@@ -1,24 +1,28 @@
 "use client";
 
+import Image from "@/components/Img";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
-import { site, whatsappLink } from "@/content/site";
+import { useEffect, useRef, useState } from "react";
+import { site } from "@/content/site";
 import { money } from "@/lib/format";
 import { Photo } from "@/components/ProductImage";
-import { PharmacistMark } from "@/components/PharmacistMark";
+import type { ProductImage } from "@/lib/types";
 
 export interface HeroProduct {
   slug: string;
-  no: string;
-  lines: [string, string];
-  rows: [string, string][];
-  price: number;
-  short: string;
+  name: string;
+  brand: string | null;
   spec: string;
+  price: number;
+  image: ProductImage | null;
 }
 
-export function Hero({ headline, product }: { headline: string; product: HeroProduct | null }) {
+const ROTATE_MS = 4500;
+
+export function Hero({ headline, products }: { headline: string; products: HeroProduct[] }) {
   const img = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -36,11 +40,26 @@ export function Hero({ headline, product }: { headline: string; product: HeroPro
     };
   }, []);
 
+  // Shuffle through the best sellers; hover/focus pauses, reduced motion stops it entirely.
+  useEffect(() => {
+    if (paused || products.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setActive((i) => (i + 1) % products.length), ROTATE_MS);
+    return () => clearInterval(t);
+  }, [paused, products.length]);
+
   const lines = [headline, "One shelf you", "can trust."];
+  const p = products[active];
+  const counter = `${String(active + 1).padStart(2, "0")} / ${String(products.length).padStart(2, "0")}`;
+  const pause = {
+    onMouseEnter: () => setPaused(true),
+    onMouseLeave: () => setPaused(false),
+    onFocus: () => setPaused(true),
+    onBlur: () => setPaused(false),
+  };
 
   return (
-    <section className="border-b border-hairline lg:grid lg:min-h-[600px] lg:grid-cols-[minmax(560px,5fr)_7fr]">
-      <div className="flex flex-col justify-between px-4 pt-7 lg:py-14 lg:pb-10 lg:pl-12 lg:pr-14">
+    <section className="border-b border-hairline lg:grid lg:min-h-[560px] lg:grid-cols-[minmax(520px,5fr)_7fr]">
+      <div className="flex flex-col justify-center px-4 pt-7 lg:py-14 lg:pl-12 lg:pr-14">
         <div className="flex flex-col gap-[18px] lg:gap-8">
           <span className="flex items-center gap-2.5 text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text lg:text-[11px] lg:tracking-[.18em]">
             <span aria-hidden="true" className="hidden h-3.5 w-3.5 items-center justify-center bg-mint text-xs text-ink lg:flex">
@@ -57,26 +76,13 @@ export function Hero({ headline, product }: { headline: string; product: HeroPro
               </span>
             ))}
           </h1>
-          <p className="m-0 max-w-[440px] text-base leading-normal [text-wrap:pretty] lg:text-[19px] lg:leading-[1.55]">
-            <span className="lg:hidden">Chosen by a pharmacist, checked on arrival in Beirut, listed with the full specification.</span>
-            <span className="hidden lg:inline">Every product is chosen by a pharmacist, checked on arrival in Beirut and listed with its full specification — dose, form, and what it is for.</span>
-          </p>
-          <div className="hidden flex-wrap gap-3 lg:flex">
-            <Link href="/shop" className="inline-flex h-14 items-center gap-3 rounded-sm bg-slate-700 px-7 text-[13px] font-semibold uppercase leading-none tracking-[.16em] text-paper transition-[background,transform] duration-200 hover:bg-ink active:scale-[.97]">
-              Shop the shelf →
-            </Link>
-            <Link href="/routine" className="inline-flex h-14 items-center rounded-sm border border-ink px-[26px] text-[13px] font-semibold uppercase leading-none tracking-[.16em] text-ink transition-colors duration-200 hover:bg-paper-shade">
-              Find your supplements
-            </Link>
-          </div>
+          <Link
+            href="/shop"
+            className="hidden h-14 items-center gap-3 self-start rounded-sm bg-slate-700 px-7 text-[13px] font-semibold uppercase leading-none tracking-[.16em] text-paper transition-[background,transform] duration-200 hover:bg-ink active:scale-[.97] lg:inline-flex"
+          >
+            Shop the shelf →
+          </Link>
         </div>
-        <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="mt-10 hidden max-w-[440px] items-center gap-3.5 border-t border-hairline pt-5 text-ink lg:flex">
-          <PharmacistMark />
-          <span className="flex flex-col gap-1">
-            <span className="text-[15px] font-medium leading-[1.3]">Not sure what you need? Ask our pharmacist.</span>
-            <span className="text-[11px] font-medium uppercase leading-none tracking-[.14em] text-slate-text">WhatsApp · replies within the hour</span>
-          </span>
-        </a>
       </div>
 
       <div className="relative mt-[22px] aspect-[4/5] overflow-hidden bg-slate lg:mt-0 lg:aspect-auto">
@@ -89,65 +95,87 @@ export function Hero({ headline, product }: { headline: string; product: HeroPro
           </span>
         ))}
 
-        {product && (
-          <>
-            {/* Desktop spec card */}
-            <Link
-              href={`/products/${product.slug}`}
-              className="absolute bottom-12 left-12 hidden w-80 flex-col gap-3.5 border border-hairline bg-paper px-[22px] pb-[18px] pt-[22px] text-ink shadow-card transition-transform duration-300 ease-out hover:-translate-y-1 lg:flex"
-            >
-              <span className="flex justify-between text-[10px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">
-                <span>On the shelf</span>
-                <span>No. {product.no}</span>
-              </span>
-              <span className="font-display text-[34px] font-medium leading-[.95]">
-                {product.lines[0]}
-                {product.lines[1] && (
-                  <>
-                    <br />
-                    {product.lines[1]}
-                  </>
-                )}
-              </span>
-              <span className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t border-hairline pt-3 text-[11px] font-medium uppercase leading-[1.2] tracking-[.1em]">
-                {product.rows.map(([k, v]) => (
-                  <span key={k} className="contents">
-                    <span className="text-slate-text">{k}</span>
-                    <span>{v}</span>
-                  </span>
-                ))}
-              </span>
-              <span className="flex items-center justify-between border-t border-dashed border-spec-rule pt-3">
-                <span className="text-lg font-semibold leading-none">{money(product.price)}</span>
-                <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase leading-none tracking-[.16em]">
-                  <span aria-hidden="true" className="flex h-4 w-4 items-center justify-center rounded-full bg-mint text-xs">
-                    +
-                  </span>
-                  Pharmacist checked
+        {p && (
+          <div aria-roledescription="carousel" aria-label="Best sellers" {...pause}>
+            {/* Desktop best-seller card */}
+            <div className="absolute bottom-12 left-12 hidden w-80 flex-col border border-hairline bg-paper text-ink shadow-card lg:flex">
+              <span className="flex items-center justify-between px-[22px] pt-[18px] text-[10px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">
+                <span className="flex items-center gap-1.5">
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-mint" />
+                  Best seller
+                </span>
+                <span className="tabular-nums" aria-live="polite">
+                  {counter}
                 </span>
               </span>
-            </Link>
-            {/* Mobile spec card */}
-            <Link href={`/products/${product.slug}`} className="absolute inset-x-4 bottom-4 flex items-center justify-between bg-paper px-4 py-3.5 text-ink lg:hidden">
-              <span className="flex flex-col gap-1">
-                <span className="text-[9.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">On the shelf</span>
-                <span className="font-display text-[22px] font-medium leading-none">{product.short}</span>
-                <span className="text-[10.5px] font-medium uppercase leading-none tracking-[.08em]">{product.spec}</span>
-              </span>
-              <span className="text-[17px] font-semibold leading-none">{money(product.price)}</span>
-            </Link>
-          </>
+              <Link key={p.slug} href={`/products/${p.slug}`} className="flex flex-col gap-3 px-[22px] pb-4 pt-3.5 motion-safe:animate-rise">
+                <span className="relative aspect-[4/3] overflow-hidden bg-paper-shade">
+                  {p.image && (
+                    <span className="absolute inset-[10%]">
+                      <Image src={p.image.src} alt={p.image.alt || p.name} fill sizes="280px" className="object-contain mix-blend-multiply" />
+                    </span>
+                  )}
+                </span>
+                <span className="flex flex-col gap-1.5">
+                  {p.brand && <span className="text-[10.5px] font-semibold uppercase leading-none tracking-[.14em] text-slate-text">{p.brand}</span>}
+                  <span className="line-clamp-2 font-display text-[26px] font-medium leading-[1]">{p.name}</span>
+                </span>
+                <span className="flex items-center justify-between border-t border-dashed border-spec-rule pt-3">
+                  <span className="text-lg font-semibold leading-none">{money(p.price)}</span>
+                  <span className="text-[11px] font-semibold uppercase leading-none tracking-[.16em]">Shop →</span>
+                </span>
+              </Link>
+              <Dots count={products.length} active={active} onPick={setActive} className="px-[22px] pb-[18px]" />
+            </div>
+
+            {/* Mobile best-seller card */}
+            <div className="absolute inset-x-4 bottom-4 flex flex-col gap-2.5 bg-paper px-4 pb-3 pt-3.5 text-ink lg:hidden">
+              <Link key={p.slug} href={`/products/${p.slug}`} className="flex items-center gap-3.5 motion-safe:animate-rise">
+                <span className="relative h-14 w-14 flex-none overflow-hidden bg-paper-shade">
+                  {p.image && (
+                    <span className="absolute inset-[8%]">
+                      <Image src={p.image.src} alt="" fill sizes="56px" className="object-contain mix-blend-multiply" />
+                    </span>
+                  )}
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col gap-1">
+                  <span className="text-[9.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">Best seller · {counter}</span>
+                  <span className="truncate font-display text-[20px] font-medium leading-none">{p.name}</span>
+                  {p.brand && <span className="truncate text-[10.5px] font-medium uppercase leading-none tracking-[.08em]">{p.brand}</span>}
+                </span>
+                <span className="text-[17px] font-semibold leading-none">{money(p.price)}</span>
+              </Link>
+              <Dots count={products.length} active={active} onPick={setActive} />
+            </div>
+          </div>
         )}
       </div>
 
-      <div className="flex flex-col gap-2 p-4 lg:hidden">
+      <div className="p-4 lg:hidden">
         <Link href="/shop" className="flex h-[54px] items-center justify-center rounded-sm bg-slate-700 text-[13px] font-semibold uppercase leading-none tracking-[.16em] text-paper">
           Shop the shelf
         </Link>
-        <Link href="/routine" className="flex h-[54px] items-center justify-center rounded-sm border border-ink text-[13px] font-semibold uppercase leading-none tracking-[.16em] text-ink">
-          Find your supplements
-        </Link>
       </div>
     </section>
+  );
+}
+
+function Dots({ count, active, onPick, className = "" }: { count: number; active: number; onPick: (i: number) => void; className?: string }) {
+  if (count < 2) return null;
+  return (
+    <span className={`flex gap-1.5 ${className}`}>
+      {Array.from({ length: count }, (_, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={() => onPick(i)}
+          aria-label={`Show best seller ${i + 1}`}
+          aria-current={i === active ? "true" : undefined}
+          className="flex h-6 flex-1 items-center"
+        >
+          <span className={`h-0.5 w-full transition-colors duration-300 ${i === active ? "bg-ink" : "bg-hairline"}`} />
+        </button>
+      ))}
+    </span>
   );
 }

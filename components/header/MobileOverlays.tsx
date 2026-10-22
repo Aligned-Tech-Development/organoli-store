@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "@/components/Img";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
@@ -45,14 +46,22 @@ export function MobileMenu({ data, open, onClose }: { data: HeaderData; open: bo
           </button>
         </div>
         <nav aria-label="Mobile" className="flex-1 overflow-y-auto px-4 pb-28">
-          <div className="flex flex-col py-4">
+          <div className="flex flex-col gap-2.5 py-4">
             <Label>Categories</Label>
-            {data.categories.map((c) => (
-              <Link key={c.slug} href={`/shop/${c.slug}`} onClick={onClose} className="flex min-h-11 items-center justify-between border-b border-hairline-soft text-base">
-                <span>{c.name}</span>
-                <span className="text-[13px] tabular-nums text-slate-text">{c.count}</span>
-              </Link>
-            ))}
+            <div className="grid grid-cols-3 gap-2.5">
+              {data.categories.map((c) => (
+                <Link key={c.slug} href={`/shop/${c.slug}`} onClick={onClose} className="flex flex-col gap-1.5 text-ink">
+                  <span className="relative aspect-square overflow-hidden rounded-sm border border-hairline bg-paper-shade">
+                    {c.image && (
+                      <span className="absolute inset-[14%]">
+                        <Image src={c.image.src} alt="" fill sizes="30vw" className="object-contain mix-blend-multiply" />
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[13px] font-medium leading-[1.2]">{c.short}</span>
+                </Link>
+              ))}
+            </div>
           </div>
           <div className="flex flex-col gap-2.5 py-4">
             <Label>By goal</Label>
@@ -66,6 +75,7 @@ export function MobileMenu({ data, open, onClose }: { data: HeaderData; open: bo
           </div>
           <div className="flex flex-col py-4">
             {[
+              ["Best sellers", "/#best-sellers"],
               ["All products", "/shop"],
               ["Brands A–Z", "/brands"],
               ["New on the shelf", "/shop?sort=new"],

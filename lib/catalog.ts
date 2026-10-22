@@ -125,6 +125,16 @@ export class Catalog {
       .slice(0, n)
       .map(this.toCard);
 
+  /** Random in-stock products with a photo. Stand-in for real best sellers until we have sales data. */
+  randomPicks = (n: number) => {
+    const pool = this.products.filter((p) => p.stock !== "out" && p.price > 0 && p.images.length);
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, n);
+  };
+
   recommended = (list: Product[], n: number) => sortProducts(list.filter((p) => p.price > 0), "rec", rank).slice(0, n);
 
   categoryCounts = () =>
