@@ -98,8 +98,8 @@ export function Hero({ headline, products }: { headline: string; products: HeroP
         {p && (
           <div aria-roledescription="carousel" aria-label="Best sellers" {...pause}>
             {/* Desktop best-seller card */}
-            <div className="absolute bottom-12 left-12 hidden w-80 flex-col border border-hairline bg-paper text-ink shadow-card lg:flex">
-              <span className="flex items-center justify-between px-[22px] pt-[18px] text-[10px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">
+            <div className="absolute bottom-8 left-8 hidden w-60 flex-col border border-hairline bg-paper text-ink shadow-card lg:flex">
+              <span className="flex items-center justify-between px-4 pt-3.5 text-[9.5px] font-semibold uppercase leading-none tracking-[.16em] text-slate-text">
                 <span className="flex items-center gap-1.5">
                   <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-mint" />
                   Best seller
@@ -108,24 +108,24 @@ export function Hero({ headline, products }: { headline: string; products: HeroP
                   {counter}
                 </span>
               </span>
-              <Link key={p.slug} href={`/products/${p.slug}`} className="flex flex-col gap-3 px-[22px] pb-4 pt-3.5 motion-safe:animate-rise">
-                <span className="relative aspect-[4/3] overflow-hidden bg-paper-shade">
+              <Link key={p.slug} href={`/products/${p.slug}`} className="flex flex-col gap-2.5 px-4 pb-3 pt-3 motion-safe:animate-rise">
+                <span className="relative aspect-[16/9] overflow-hidden bg-paper-shade">
                   {p.image && (
-                    <span className="absolute inset-[10%]">
-                      <Image src={p.image.src} alt={p.image.alt || p.name} fill sizes="280px" className="object-contain mix-blend-multiply" />
+                    <span className="absolute inset-[8%]">
+                      <Image src={p.image.src} alt={p.image.alt || p.name} fill sizes="208px" className="object-contain mix-blend-multiply" />
                     </span>
                   )}
                 </span>
-                <span className="flex flex-col gap-1.5">
-                  {p.brand && <span className="text-[10.5px] font-semibold uppercase leading-none tracking-[.14em] text-slate-text">{p.brand}</span>}
-                  <span className="line-clamp-2 font-display text-[26px] font-medium leading-[1]">{p.name}</span>
+                <span className="flex flex-col gap-1">
+                  {p.brand && <span className="text-[9.5px] font-semibold uppercase leading-none tracking-[.14em] text-slate-text">{p.brand}</span>}
+                  <span className="line-clamp-2 font-display text-[19px] font-medium leading-[1.05]">{p.name}</span>
                 </span>
-                <span className="flex items-center justify-between border-t border-dashed border-spec-rule pt-3">
-                  <span className="text-lg font-semibold leading-none">{money(p.price)}</span>
-                  <span className="text-[11px] font-semibold uppercase leading-none tracking-[.16em]">Shop →</span>
+                <span className="flex items-center justify-between border-t border-dashed border-spec-rule pt-2.5">
+                  <span className="text-[15px] font-semibold leading-none">{money(p.price)}</span>
+                  <span className="text-[10px] font-semibold uppercase leading-none tracking-[.16em]">Shop →</span>
                 </span>
               </Link>
-              <Dots count={products.length} active={active} onPick={setActive} className="px-[22px] pb-[18px]" />
+              <Dots count={products.length} active={active} onPick={setActive} className="px-4 pb-2.5" />
             </div>
 
             {/* Mobile best-seller card */}
