@@ -223,14 +223,19 @@ export function HeaderClient({ data }: { data: HeaderData }) {
           <MegaMenu data={data} open={megaOpen && !compact} onNavigate={close} />
         </div>
 
-        {/* Scrim under the header for search + mega */}
+        {/* Scrim under the header for search + mega. Collapses to 0 height once faded out,
+            otherwise it hangs below short pages and leaves blank scroll under the footer. */}
         <div
           onClick={() => {
             close();
             setHoverNav(-1);
           }}
           aria-hidden="true"
-          className={`absolute inset-x-0 top-full z-[2] hidden h-[3000px] bg-ink/30 transition-opacity duration-300 ease-[ease] lg:block ${scrim && !compact ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+          className={`absolute inset-x-0 top-full z-[2] hidden bg-ink/30 lg:block ${
+            scrim && !compact
+              ? "pointer-events-auto h-dvh opacity-100 [transition:opacity_300ms_ease]"
+              : "pointer-events-none h-0 opacity-0 [transition:opacity_300ms_ease,height_0s_300ms]"
+          }`}
         />
       </header>
 
