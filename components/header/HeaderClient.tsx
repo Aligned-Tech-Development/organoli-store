@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { megaIngredients, site, whatsappLink } from "@/content/site";
+import { megaIngredients, site } from "@/content/site";
 import { cartCount, useCart, useUI, useWishlist } from "@/lib/store";
 import { Logo } from "../Logo";
 import { MobileMenu, MobileSearch } from "./MobileOverlays";
@@ -117,16 +117,10 @@ export function HeaderClient({ data }: { data: HeaderData }) {
     <>
       <header className="relative z-[60] bg-paper font-sans text-ink">
         {/* Utility bar */}
-        <div className="on-dark relative flex h-9 items-center overflow-hidden bg-ink text-[10px] font-medium uppercase leading-none tracking-[.14em] text-paper lg:text-[11px] lg:tracking-[.16em]">
-          <PromoMarquee messages={PROMOS(site.freeDeliveryThreshold)} />
-          <a
-            href={whatsappLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute inset-y-0 right-0 hidden items-center bg-ink border-l border-paper/20 pl-6 pr-12 transition-colors hover:text-mint lg:flex"
-          >
-            Ask a pharmacist →
-          </a>
+        <div className="px-2 pt-2 lg:px-3">
+          <div className="on-dark flex h-7 items-center overflow-hidden rounded-md bg-ink text-[11.5px] font-medium leading-none text-paper lg:text-xs">
+            <PromoMarquee messages={PROMOS(site.freeDeliveryThreshold)} />
+          </div>
         </div>
 
         {/* Desktop main row */}
@@ -460,8 +454,8 @@ function PromoMarquee({ messages }: { messages: string[] }) {
           {run.map((m, i) => (
             <span key={i} className="flex items-center">
               {m}
-              <span aria-hidden="true" className="px-6 text-mint">
-                +
+              <span aria-hidden="true" className="px-8 lg:px-10">
+                •
               </span>
             </span>
           ))}
