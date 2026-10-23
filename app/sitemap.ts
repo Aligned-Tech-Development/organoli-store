@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { articles } from "@/content/editorial";
 import { BRAND_PAGE_MIN, brandHref, goalHref } from "@/content/seo";
 import { siteUrl } from "@/content/site";
 import { getCatalog } from "@/lib/catalog";
@@ -16,6 +17,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/shop", 0.9),
     page("/brands", 0.6),
     page("/routine", 0.6),
+    page("/learn", 0.5),
+    ...articles.map((a) => page(a.href, 0.6)),
     page("/contact", 0.5),
     ...CATEGORIES.map((c) => page(`/shop/${c.slug}`, 0.8)),
     ...GOALS.map((g) => page(goalHref(g.slug), 0.8)),

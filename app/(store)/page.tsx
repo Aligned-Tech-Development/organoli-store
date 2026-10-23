@@ -247,7 +247,7 @@ export default async function HomePage() {
               Plain answers to the questions behind the shelf.
             </h2>
           </div>
-          <Link href="/search?q=guide" className="link-rule flex-none self-start lg:self-auto">
+          <Link href="/learn" className="link-rule flex-none self-start lg:self-auto">
             All articles →
           </Link>
         </Reveal>
