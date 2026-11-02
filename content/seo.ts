@@ -35,6 +35,26 @@ export const GOAL_COPY: Record<GoalSlug, { title: string; description: string; i
     description: "Probiotics, digestive enzymes and fibre for bloating, regularity and digestion, chosen by a pharmacist. Delivered across Lebanon.",
     intro: "Three different jobs: probiotics for the balance of the gut, enzymes for heavy meals and fibre for regularity. Pick the one that matches what you feel, rather than all three at once.",
   },
+  heart: {
+    title: "Supplements for heart health",
+    description: "Omega-3, CoQ10 and pycnogenol for heart and circulation support, chosen by a pharmacist. Delivered next day in Beirut.",
+    intro: "Omega-3 from fish, krill or algae is the foundation, with CoQ10 and pycnogenol for circulation. If you take blood thinners or heart medication, check with your doctor before adding any of them.",
+  },
+  metabolic: {
+    title: "Supplements for metabolic health and blood sugar",
+    description: "Berberine, chromium, inositol and akkermansia for healthy blood sugar and metabolism, chosen by a pharmacist. Delivered across Lebanon.",
+    intro: "Berberine, chromium and inositol support healthy blood sugar alongside diet and movement, and akkermansia supports the gut side of metabolism. If you take diabetes medication, speak to your doctor first.",
+  },
+  "bone-joint": {
+    title: "Supplements for bones and joints",
+    description: "Vitamin D3 with K2, calcium and curcumin for bone and joint support, chosen by a pharmacist. Cash on delivery across Lebanon.",
+    intro: "Vitamin D3 with K2 helps the body use calcium where it belongs, in the bones. Curcumin and collagen support joints that work hard. Give joint support six to eight weeks before judging it.",
+  },
+  "healthy-aging": {
+    title: "Healthy aging supplements",
+    description: "CoQ10, resveratrol, spermidine and glutathione for healthy aging, chosen by a pharmacist. Delivered next day in Beirut.",
+    intro: "Our levels of CoQ10 and glutathione fall with age. These are the antioxidants and cell-support nutrients we'd choose for the long run, alongside 50+ multivitamins made for older bodies.",
+  },
   "womens-health": {
     title: "Supplements for women's health",
     description: "Iron, folate, omega-3, prenatal formulas and women's multivitamins, chosen by a pharmacist. Delivered next day in Beirut.",

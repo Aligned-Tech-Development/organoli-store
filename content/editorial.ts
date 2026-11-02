@@ -13,8 +13,6 @@ export interface Edit {
   title: string;
   dek: string;
   window: string;
-  caption: string;
-  image: string;
   tone: "paper" | "slate" | "mint";
   foot: string;
   steps: EditStep[];
@@ -26,8 +24,6 @@ export const edits: Edit[] = [
     title: "Build your better morning",
     dek: "Four products, in the order you’d take them. Hydrate first, probiotic before food, vitamins with breakfast, protein when you need it.",
     window: "07:00–10:30",
-    caption: "Lifestyle · morning kitchen, water glass, open window",
-    image: "/images/edit-morning.jpg",
     tone: "paper",
     foot: "Take with food unless noted. That is the whole instruction.",
     steps: [
@@ -42,8 +38,6 @@ export const edits: Edit[] = [
     title: "The Sleep Edit",
     dek: "An evening routine built around magnesium — the most-asked-about product on our shelf — plus two quiet companions.",
     window: "20:00–21:30",
-    caption: "Lifestyle · bedside, low lamp, linen, glass jar",
-    image: "/images/edit-sleep.jpg",
     tone: "slate",
     foot: "Not a sleep aid. Speak to us if you take sedatives.",
     steps: [
@@ -57,8 +51,6 @@ export const edits: Edit[] = [
     title: "A calmer gut, in three steps",
     dek: "A probiotic for the flora, enzymes for heavy meals, and fibre for regularity — the short list our pharmacist recommends first.",
     window: "daily",
-    caption: "Macro · psyllium, capsules, glass of water",
-    image: "/images/edit-gut.jpg",
     tone: "mint",
     foot: "Start one product at a time. Give it four weeks.",
     steps: [

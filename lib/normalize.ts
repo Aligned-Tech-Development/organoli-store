@@ -197,6 +197,11 @@ const GOAL_RULES: Rule<GoalSlug>[] = [
   ["energy", (_c, t) => /\bb12\b|b[- ]?complex|b vitamins|\biron\b|coq10|ubiquinol|energy|methyl|fatigue|tiredness/i.test(t)],
   ["immunity", (c, t) => /immune/.test(c) || /immun|vitamin c|\bzinc\b|\bd3\b|vitamin d|elderberry|colostrum|quercetin|propolis|echinacea/i.test(t)],
   ["stress", (c, t) => /adrenal/.test(c) || /ashwagandha|rhodiola|stress|theanine|saffron|adrenal|magnesium/i.test(t)],
+  // Ingredients only: "heart" and "cardio" turn up in the marketing copy of unrelated products.
+  ["heart", (_c, t) => /omega|fish oil|krill|algae oil|coq10|ubiquinol|pycnogenol|pyncogenol|nattokinase|red yeast|carnitine/i.test(t)],
+  ["metabolic", (c, t) => /slimming|weight/.test(c) || /berberine|blood sugar|glucose|insulin|chromium|inositol|metabolic|akkermansia|muciniphila|alpha lipoic|\bweight\b|clarinol/i.test(t)],
+  ["bone-joint", (_c, t) => /bone health|healthy bones|joint|cartilage|glucosamine|chondroitin|\bmsm\b|boswellia|curcumin|turmeric|turmero|\bk2\b|vitamin k\b|calcium/i.test(t)],
+  ["healthy-aging", (_c, t) => /\bnad\b|\bnmn\b|resveratrol|spermidine|urolithin|\bpqq\b|ubiquinol|coq10|glutathione|pycnogenol|pyncogenol|astaxanthin|longevity|healthy ag(?:e)?ing|\b50\+/i.test(t)],
   ["womens-health", (c, t) => /women/.test(c) || /women|prenatal|folate|folinic|folic|\biron\b|cranberry|urinary|pregnan/i.test(t)],
   ["hormonal-support", (c, t) => /hormonal|thyroid/.test(c) || /inositol|vitex|\bdim\b|thyroid|menopause|hormon|maca|primrose/i.test(t)],
   ["skin-beauty", (c, t) => /collagen|skin/.test(c) || /collagen|hyaluronic|skin|biotin|hair|nail/i.test(t)],

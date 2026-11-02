@@ -39,8 +39,6 @@ export default async function HomePage() {
     title: e.title,
     dek: e.dek,
     meta: `The edit · ${e.steps.length} products · ${e.window}`,
-    caption: e.caption,
-    image: e.image,
     tone: e.tone,
     foot: e.foot,
     steps: e.steps.flatMap((s) => {
@@ -61,7 +59,7 @@ export default async function HomePage() {
   return (
     <>
       {/* Best sellers rotate in the hero. Random picks until we have real sales data (re-rolled on every revalidate). */}
-      <Hero headline={`${roundWords(totals.brands)} brands.`} products={catalog.randomPicks(8).map(heroCard)} />
+      <Hero brands={totals.brands} products={catalog.randomPicks(8).map(heroCard)} />
 
       {/* Shop by category */}
       <section id="categories" className="scroll-mt-20 px-4 pb-6 pt-9 lg:px-12 lg:pb-[72px] lg:pt-16" aria-labelledby="cat-title">
@@ -114,7 +112,7 @@ export default async function HomePage() {
         ]}
       />
 
-      <GoalIndex goals={catalog.goalCounts().map(({ slug, name, ingredients, caption, image, count }) => ({ slug, name, ingredients, caption, image, count }))} />
+      <GoalIndex goals={catalog.goalCounts()} />
 
       <Edits edits={editViews} />
 

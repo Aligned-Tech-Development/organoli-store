@@ -5,16 +5,17 @@ import { useState } from "react";
 import { Reveal } from "@/components/motion";
 import { goalHref } from "@/content/seo";
 import { pad2 } from "@/lib/format";
-import { Photo } from "@/components/ProductImage";
+import { PackShelf } from "@/components/ProductImage";
+import type { ProductImage } from "@/lib/types";
 
-const TONES = ["ph-slate text-paper", "ph-paper text-slate-text", "ph-mint text-ink"];
+// Light tones only: pack shots are multiplied onto the background.
+const TONES = ["bg-mint-100", "bg-paper-shade", "bg-slate-100"];
 
 export interface GoalRow {
   slug: string;
   name: string;
   ingredients: string;
-  caption: string;
-  image: string;
+  covers: ProductImage[];
   count: number;
 }
 
@@ -22,22 +23,21 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
   const [active, setActive] = useState(0);
   const g = goals[active];
   return (
-    <section id="shop-by-goal" className="pb-2 pt-9 lg:px-12 lg:py-[120px]" aria-labelledby="goal-title">
+    <section id="shop-by-goal" className="scroll-mt-20 pb-2 pt-9 lg:px-12 lg:py-[120px]" aria-labelledby="goal-title">
       {/* Mobile: snap rail */}
       <div className="flex flex-col gap-4 lg:hidden">
         <div className="flex items-baseline justify-between px-4">
-          <h2 className="m-0 font-display text-[38px] font-medium leading-[.95]">Shop by goal</h2>
-          <Link href="/shop" className="text-[11px] font-semibold uppercase leading-none tracking-[.14em]">
+          <h2 className="m-0 font-display text-[38px] font-medium leading-[.95]">Shop by health goal</h2>
+          <Link href="/shop" className="flex-none text-[11px] font-semibold uppercase leading-none tracking-[.14em]">
             All →
           </Link>
         </div>
         <div className="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4">
           {goals.map((x, i) => (
-            <Link key={x.slug} href={goalHref(x.slug)} className="flex w-[132px] flex-none snap-start flex-col gap-2 text-ink">
-              <span className={`relative flex aspect-[4/5] items-end overflow-hidden p-2 font-display text-2xl font-medium leading-none text-paper ${TONES[i % 3]}`}>
-                <Photo src={x.image} sizes="132px" />
-                <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
-                <span className="relative">{x.name}</span>
+            <Link key={x.slug} href={goalHref(x.slug)} className="flex w-[148px] flex-none snap-start flex-col gap-2 text-ink">
+              <span className={`relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-2.5 ${TONES[i % 3]}`}>
+                <span className="relative z-10 font-display text-[22px] font-medium leading-none">{x.name}</span>
+                <PackShelf images={x.covers} max={2} sizes="70px" className="absolute inset-x-3 bottom-3 top-[34%]" />
               </span>
               <span className="text-[10.5px] font-medium uppercase leading-[1.3] tracking-[.08em] text-slate-text">{x.ingredients}</span>
             </Link>
@@ -49,7 +49,7 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
       <div className="hidden lg:block">
         <Reveal className="mb-14 grid grid-cols-[5fr_7fr] items-end gap-14">
           <div className="flex flex-col gap-5">
-            <span className="eyebrow">Shop by goal</span>
+            <span className="eyebrow">Shop by health goal</span>
             <h2 id="goal-title" className="m-0 font-display text-[76px] font-medium leading-[.92] tracking-[-.01em]">
               Start with what you need, not what it’s called.
             </h2>
@@ -63,10 +63,10 @@ export function GoalIndex({ goals }: { goals: GoalRow[] }) {
                 <div
                   key={x.slug}
                   aria-hidden={i !== active}
-                  className={`absolute inset-0 flex items-end p-[18px] transition-[opacity,transform] duration-[500ms,1200ms] ease-[ease,cubic-bezier(.2,.7,.2,1)] ${TONES[i % 3]}`}
-                  style={{ opacity: i === active ? 1 : 0, transform: i === active ? "scale(1)" : "scale(1.06)" }}
+                  className={`absolute inset-0 transition-[opacity,transform] duration-[500ms,1200ms] ease-[ease,cubic-bezier(.2,.7,.2,1)] ${TONES[i % 3]}`}
+                  style={{ opacity: i === active ? 1 : 0, transform: i === active ? "scale(1)" : "scale(1.04)" }}
                 >
-                  <Photo src={x.image} alt={x.caption} sizes="(min-width:1024px) 40vw, 1px" />
+                  <PackShelf images={x.covers} sizes="(min-width:1024px) 14vw, 1px" className="absolute inset-x-[8%] bottom-[12%] top-[18%]" />
                 </div>
               ))}
             </div>

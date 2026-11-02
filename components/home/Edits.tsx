@@ -6,21 +6,20 @@ import { Reveal } from "@/components/motion";
 import { money } from "@/lib/format";
 import { useCart } from "@/lib/store";
 import type { CardProduct } from "@/lib/types";
-import { Photo } from "@/components/ProductImage";
+import { PackShelf } from "@/components/ProductImage";
 
 export interface EditView {
   tab: string;
   title: string;
   dek: string;
   meta: string;
-  caption: string;
-  image: string;
   tone: "paper" | "slate" | "mint";
   foot: string;
   steps: { time: string; label: string; p: CardProduct }[];
 }
 
-const TONE = { paper: "ph-paper text-slate-text", slate: "ph-slate text-paper", mint: "ph-mint text-ink" };
+// Light tones only: the edit's pack shots are multiplied onto the background.
+const TONE = { paper: "bg-paper-shade", slate: "bg-slate-100", mint: "bg-mint-100" };
 
 export function Edits({ edits }: { edits: EditView[] }) {
   const [active, setActive] = useState(0);
@@ -72,10 +71,10 @@ export function Edits({ edits }: { edits: EditView[] }) {
             <div
               key={x.tab}
               aria-hidden="true"
-              className={`absolute inset-0 flex items-end p-6 transition-[opacity,transform] duration-[700ms,1400ms] ease-[ease,cubic-bezier(.2,.7,.2,1)] ${TONE[x.tone]}`}
-              style={{ opacity: i === active ? 1 : 0, transform: i === active ? "scale(1)" : "scale(1.05)" }}
+              className={`absolute inset-0 transition-[opacity,transform] duration-[700ms,1400ms] ease-[ease,cubic-bezier(.2,.7,.2,1)] ${TONE[x.tone]}`}
+              style={{ opacity: i === active ? 1 : 0, transform: i === active ? "scale(1)" : "scale(1.04)" }}
             >
-              <Photo src={x.image} alt={x.caption} sizes="(min-width:1024px) 55vw, 100vw" duotone={x.tone === "slate"} />
+              <PackShelf images={x.steps.map((s) => s.p.image)} max={4} sizes="(min-width:1024px) 14vw, 25vw" className="absolute inset-x-[6%] bottom-[10%] top-[22%] lg:inset-x-[10%] lg:top-[26%]" />
             </div>
           ))}
           <span className="absolute left-4 top-4 bg-paper px-3 py-2 text-[10.5px] font-semibold uppercase leading-none tracking-[.16em] lg:left-6 lg:top-6">{e.meta}</span>

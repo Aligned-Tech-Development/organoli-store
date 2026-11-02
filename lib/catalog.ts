@@ -147,8 +147,10 @@ export class Catalog {
   goalCounts = () =>
     GOALS.map((g) => {
       const items = this.products.filter((p) => p.goals.includes(g.slug));
-      const cover = sortProducts(items.filter((p) => p.images.length), "rec", rank)[0];
-      return { ...g, count: items.length, cover: cover?.images[0] ?? null };
+      const covers = sortProducts(items.filter((p) => p.images.length && p.stock !== "out"), "rec", rank)
+        .slice(0, 3)
+        .map((p) => p.images[0]);
+      return { ...g, count: items.length, covers };
     });
 
   // ---------- shop listing ----------

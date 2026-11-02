@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Photo } from "@/components/ProductImage";
+import { PackShelf } from "@/components/ProductImage";
 import { site, whatsappLink } from "@/content/site";
 import { money } from "@/lib/format";
 import { useCart } from "@/lib/store";
@@ -13,13 +13,14 @@ import type { CardProduct, GoalSlug } from "@/lib/types";
 
 export type QuizProduct = CardProduct & { goals: GoalSlug[]; dietary: string[]; format: string | null; ingredients: string[]; rank: number };
 
-const GOALS: { label: string; image: string; sub: string; ph: string; tone: string; slug: GoalSlug }[] = [
-  { label: "Sleep", image: "/images/goal-sleep.jpg", sub: "Falling asleep, winding down", ph: "evening still life", tone: "ph-slate text-paper", slug: "sleep" },
-  { label: "Gut", image: "/images/goal-gut.jpg", sub: "Digestion, bloating, regularity", ph: "macro · probiotic capsules", tone: "ph-paper text-slate-text", slug: "gut-health" },
-  { label: "Energy", image: "/images/goal-energy.jpg", sub: "Tiredness, focus, busy days", ph: "morning run, Corniche", tone: "ph-mint text-ink", slug: "energy" },
-  { label: "Skin", image: "/images/goal-skin.jpg", sub: "Skin, hair and nails", ph: "macro · collagen powder", tone: "ph-paper text-slate-text", slug: "skin-beauty" },
-  { label: "Performance", image: "/images/routine-performance.jpg", sub: "Training, strength, recovery", ph: "gym floor, chalked hands", tone: "ph-slate text-paper", slug: "performance" },
-  { label: "General wellness", image: "/images/goal-daily.jpg", sub: "A simple daily foundation", ph: "breakfast table", tone: "ph-mint text-ink", slug: "daily-essentials" },
+// Tiles show each goal's top products (light tones: pack shots are multiplied onto them).
+const GOALS: { label: string; sub: string; tone: string; slug: GoalSlug }[] = [
+  { label: "Sleep", sub: "Falling asleep, winding down", tone: "bg-slate-100", slug: "sleep" },
+  { label: "Gut", sub: "Digestion, bloating, regularity", tone: "bg-paper-shade", slug: "gut-health" },
+  { label: "Energy", sub: "Tiredness, focus, busy days", tone: "bg-mint-100", slug: "energy" },
+  { label: "Skin", sub: "Skin, hair and nails", tone: "bg-paper-shade", slug: "skin-beauty" },
+  { label: "Performance", sub: "Training, strength, recovery", tone: "bg-slate-100", slug: "performance" },
+  { label: "General wellness", sub: "A simple daily foundation", tone: "bg-mint-100", slug: "daily-essentials" },
 ];
 const DIETS = ["Vegan", "Vegetarian", "Gluten-free", "Dairy-free", "No preference"];
 const FORMATS: [string, string, string[]][] = [
@@ -74,6 +75,20 @@ export function RoutineFinder({ products }: { products: QuizProduct[] }) {
   const qRef = useRef<HTMLDivElement>(null);
   const aRef = useRef<HTMLDivElement>(null);
   const shownStep = useRef(0);
+  const covers = useMemo(
+    () =>
+      Object.fromEntries(
+        GOALS.map((g) => [
+          g.slug,
+          products
+            .filter((p) => p.image && p.stock !== "out" && p.goals.includes(g.slug))
+            .sort((a, b) => b.rank - a.rank)
+            .slice(0, 3)
+            .map((p) => p.image),
+        ]),
+      ),
+    [products],
+  );
 
   useEffect(() => {
     if (shownStep.current === step) return;
@@ -196,7 +211,9 @@ export function RoutineFinder({ products }: { products: QuizProduct[] }) {
                       onClick={() => setGoal((x) => (x.includes(g.label) ? x.filter((y) => y !== g.label) : [...x, g.label].slice(-2)))}
                       className={`flex flex-col gap-3 rounded-sm px-3 pb-[18px] pt-3 text-left transition-[border-color,box-shadow,background] duration-200 ${tile(on)}`}
                     >
-                      <Photo src={g.image} sizes="(min-width:1024px) 220px, 45vw" className={`aspect-[4/3] w-full ${g.tone}`} />
+                      <span className={`relative block aspect-[4/3] w-full ${g.tone}`}>
+                        <PackShelf images={covers[g.slug]} sizes="(min-width:1024px) 80px, 16vw" className="absolute inset-x-[8%] bottom-[10%] top-[12%]" />
+                      </span>
                       <span className="flex w-full items-center justify-between gap-2">
                         <span className="font-display text-2xl font-medium leading-none lg:text-[30px]">{g.label}</span>
                         <span aria-hidden="true" className="flex h-6 w-6 flex-none items-center justify-center rounded-full border border-ink text-[13px] font-semibold leading-none" style={{ background: on ? "#7FB9A1" : "transparent" }}>

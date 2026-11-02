@@ -42,6 +42,39 @@ export function ProductImage({
 }
 
 /**
+ * Pack shots standing side by side, bottoms aligned, like products on a shelf.
+ * Used where a goal or routine is pictured, so the frame always shows what we
+ * sell. Multiplied like ProductImage, so the parent needs a light background.
+ */
+export function PackShelf({
+  images,
+  sizes,
+  max = 3,
+  className = "absolute inset-0",
+  priority = false,
+}: {
+  images: (Img | null)[];
+  sizes: string;
+  max?: number;
+  className?: string;
+  priority?: boolean;
+}) {
+  const shots = images.filter((i): i is Img => !!i).slice(0, max);
+  if (!shots.length) return <NoProductPhoto />;
+  const mid = (shots.length - 1) / 2;
+  return (
+    <span className={`flex items-end justify-center gap-[3%] ${className}`}>
+      {shots.map((img, i) => (
+        // The middle pack stands tallest; the outer ones step down.
+        <span key={`${img.src}-${i}`} className="relative flex-1" style={{ height: `${100 - Math.abs(i - mid) * 16}%`, maxWidth: shots.length === 1 ? "70%" : undefined }}>
+          <Image src={img.src} alt={img.alt} fill sizes={sizes} priority={priority} className="object-contain object-bottom mix-blend-multiply" />
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/**
  * Editorial photograph (public/images). `duotone` renders it in the brand's slate
  * duotone (used for the hero and edits). Fills its positioned parent unless a
  * className gives it its own size.
