@@ -23,7 +23,7 @@ const FooterLink = ({ label, href, className }: { label: string; href: string; c
 
 const Credit = ({ className }: { className: string }) => (
   <span className={className}>
-    Developed and designed by{" "}
+    © {new Date().getFullYear()} Organoli SAL, Beirut, Lebanon · Developed and designed by{" "}
     <a href="https://aligned-tech.com" target="_blank" rel="noopener" className="underline underline-offset-[3px] hover:text-mint">
       aligned-tech.com
     </a>
@@ -31,7 +31,7 @@ const Credit = ({ className }: { className: string }) => (
 );
 
 export function SiteFooter() {
-  const disclaimer = `Food supplements are not a substitute for a varied diet or medical care. Speak to your doctor if you are pregnant, nursing or taking medication. © ${new Date().getFullYear()} Organoli SAL, Beirut, Lebanon.`;
+  const disclaimer = `Food supplements are not a substitute for a varied diet or medical care. Speak to your doctor if you are pregnant, nursing or taking medication.`;
   return (
     <footer className="on-dark bg-ink font-sans text-paper">
       {/* Desktop */}
