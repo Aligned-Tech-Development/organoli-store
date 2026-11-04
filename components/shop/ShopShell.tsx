@@ -7,7 +7,7 @@ import { useState, useTransition } from "react";
 import { quickFilters } from "@/content/merchandising";
 import { useScrollLock } from "@/components/header/MobileOverlays";
 import { ProductCard } from "@/components/ProductCard";
-import { FILTER_KEYS, activeCount, emptyFilters, filtersToSearch, toggleValue, type FilterKey, type Filters, type Sort } from "@/lib/filters";
+import { FILTER_KEYS, PER_PAGE_OPTIONS, activeCount, emptyFilters, filtersToSearch, toggleValue, type FilterKey, type Filters, type PerPage, type Sort } from "@/lib/filters";
 import { FORM_USE } from "@/lib/taxonomy";
 import { pad2, plural } from "@/lib/format";
 import type { CardProduct } from "@/lib/types";
@@ -52,7 +52,7 @@ export function ShopShell({ filters, facets, results, total, pageCount, labels, 
   const pageHref = (n: number) => `${pathname}${filtersToSearch({ ...filters, page: n }, extraParams)}`;
   const tog = (k: FilterKey, v: string) => go(toggleValue(filters, k, v));
   const has = (k: FilterKey, v: string) => filters[k].includes(v);
-  const clearAll = () => go(emptyFilters(filters.sort));
+  const clearAll = () => go(emptyFilters(filters.sort, filters.per));
   const nActive = activeCount(filters);
 
   const active: { label: string; remove: () => void }[] = [];
@@ -135,6 +135,16 @@ export function ShopShell({ filters, facets, results, total, pageCount, labels, 
               <option value="new">Newest</option>
               <option value="lo">Price: low to high</option>
               <option value="hi">Price: high to low</option>
+            </select>
+          </label>
+          <label className="hidden h-11 flex-none items-center gap-2 rounded-sm border border-hairline px-3 lg:flex">
+            <span className="text-[11px] font-semibold uppercase leading-none tracking-[.14em] text-slate-text">Show</span>
+            <select value={filters.per} onChange={(e) => go({ ...filters, per: Number(e.target.value) as PerPage })} className="cursor-pointer border-0 bg-transparent text-sm font-medium tabular-nums text-ink">
+              {PER_PAGE_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
             </select>
           </label>
         </div>
@@ -228,7 +238,7 @@ export function ShopShell({ filters, facets, results, total, pageCount, labels, 
         </aside>
 
         <div className={`min-w-0 flex-1 transition-opacity duration-200 ${pending ? "opacity-60" : ""}`}>
-          {/* At most 4 per row: 4 × 4 = one page */}
+          {/* At most 4 per row; page size (20 / 50 / 100) comes from ?per= */}
           <div className={`grid content-start gap-x-3 gap-y-8 lg:gap-x-6 lg:gap-y-12 ${sideOpen ? "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-2 lg:grid-cols-4"}`} style={{ transition: "grid-template-columns .4s" }}>
             {results.map((p) => (
               <ProductCard key={p.slug} p={p} sizes={sideOpen ? "(min-width:1280px) 18vw, (min-width:1024px) 25vw, 50vw" : "(min-width:1024px) 22vw, 50vw"} />
@@ -426,6 +436,16 @@ function MobileSheet({
               <button type="button" aria-pressed={filters.stock} onClick={() => go({ ...filters, stock: !filters.stock })} className={pill(filters.stock)}>
                 In stock
               </button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2.5 border-t border-hairline-soft py-4">
+            <span className="text-[11px] font-semibold uppercase leading-none tracking-[.14em]">Products per page</span>
+            <div className="flex flex-wrap gap-2">
+              {PER_PAGE_OPTIONS.map((n) => (
+                <button key={n} type="button" aria-pressed={filters.per === n} onClick={() => go({ ...filters, per: n })} className={pill(filters.per === n)}>
+                  {n}
+                </button>
+              ))}
             </div>
           </div>
         </div>

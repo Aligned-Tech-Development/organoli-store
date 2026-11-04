@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { categoryNotes } from "@/content/editorial";
 import { getCatalog, FILTER_KEYS } from "@/lib/catalog";
-import { PAGE_SIZE, parseFilters } from "@/lib/filters";
+import { parseFilters } from "@/lib/filters";
 import { CATEGORY_BY_SLUG, GOAL_BY_SLUG } from "@/lib/taxonomy";
 import type { Brand, CategorySlug, GoalSlug, Product } from "@/lib/types";
 import { GOAL_COPY } from "@/content/seo";
@@ -36,7 +36,7 @@ export async function ShopPage({ category = null, goal = null, brand = null, sea
         ? catalog.getProducts().filter((p) => p.brandSlug === brand.slug)
         : catalog.getProducts();
   const { results, facets } = catalog.listProducts(base, filters);
-  const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(results.length / filters.per));
   const page = Math.min(filters.page, pageCount);
   const note = categoryNotes[category ?? "all"];
 
@@ -104,7 +104,7 @@ export async function ShopPage({ category = null, goal = null, brand = null, sea
       <ShopShell
         filters={{ ...filters, page }}
         facets={facets}
-        results={results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map(catalog.toCard)}
+        results={results.slice((page - 1) * filters.per, page * filters.per).map(catalog.toCard)}
         total={results.length}
         pageCount={pageCount}
         labels={labels}

@@ -1,4 +1,4 @@
-// Shop filters live in the URL: ?goal=sleep,stress&diet=Vegan&format=Capsule&stock=1&sort=lo&page=2
+// Shop filters live in the URL: ?goal=sleep,stress&diet=Vegan&format=Capsule&stock=1&sort=lo&per=50&page=2
 // This module is shared by server pages (to filter) and client controls (to build URLs).
 
 export const FILTER_KEYS = ["goal", "brand", "form", "diet", "format"] as const;
@@ -17,10 +17,14 @@ export interface Filters {
   max: number | null;
   /** 1-based listing page. */
   page: number;
+  /** Products per listing page — one of PER_PAGE_OPTIONS. */
+  per: PerPage;
 }
 
-/** Products per listing page. */
-export const PAGE_SIZE = 16;
+/** Page sizes a shopper can pick; the first is the default. */
+export const PER_PAGE_OPTIONS = [20, 50, 100] as const;
+export type PerPage = (typeof PER_PAGE_OPTIONS)[number];
+export const DEFAULT_PER_PAGE: PerPage = PER_PAGE_OPTIONS[0];
 
 type RawParams = Record<string, string | string[] | undefined>;
 
@@ -37,6 +41,7 @@ const num = (v: string | string[] | undefined) => {
 
 export function parseFilters(sp: RawParams): Filters {
   const sort = (Array.isArray(sp.sort) ? sp.sort[0] : sp.sort) as Sort | undefined;
+  const per = num(sp.per);
   return {
     goal: list(sp.goal),
     brand: list(sp.brand),
@@ -48,6 +53,7 @@ export function parseFilters(sp: RawParams): Filters {
     min: num(sp.min),
     max: num(sp.max),
     page: Math.floor(num(sp.page) ?? 1),
+    per: PER_PAGE_OPTIONS.includes(per as PerPage) ? (per as PerPage) : DEFAULT_PER_PAGE,
   };
 }
 
@@ -58,6 +64,7 @@ export function filtersToSearch(f: Filters, extra: Record<string, string> = {}):
   if (f.min != null) p.set("min", String(f.min));
   if (f.max != null) p.set("max", String(f.max));
   if (f.sort !== "rec") p.set("sort", f.sort);
+  if (f.per !== DEFAULT_PER_PAGE) p.set("per", String(f.per));
   if (f.page > 1) p.set("page", String(f.page));
   for (const [k, v] of Object.entries(extra)) if (v) p.set(k, v);
   const s = p.toString();
@@ -69,7 +76,7 @@ export function toggleValue(f: Filters, key: FilterKey, value: string): Filters 
   return { ...f, [key]: cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value] };
 }
 
-export const emptyFilters = (sort: Sort = "rec"): Filters => ({ goal: [], brand: [], form: [], diet: [], format: [], stock: false, sort, min: null, max: null, page: 1 });
+export const emptyFilters = (sort: Sort = "rec", per: PerPage = DEFAULT_PER_PAGE): Filters => ({ goal: [], brand: [], form: [], diet: [], format: [], stock: false, sort, min: null, max: null, page: 1, per });
 
 export const activeCount = (f: Filters) => FILTER_KEYS.reduce((a, k) => a + f[k].length, 0) + (f.stock ? 1 : 0) + (f.min != null ? 1 : 0) + (f.max != null ? 1 : 0);
 

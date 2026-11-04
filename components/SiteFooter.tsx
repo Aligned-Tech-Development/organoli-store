@@ -21,6 +21,15 @@ const FooterLink = ({ label, href, className }: { label: string; href: string; c
     </a>
   );
 
+const Credit = ({ className }: { className: string }) => (
+  <span className={className}>
+    Developed and designed by{" "}
+    <a href="https://aligned-tech.com" target="_blank" rel="noopener" className="underline underline-offset-[3px] hover:text-mint">
+      aligned-tech.com
+    </a>
+  </span>
+);
+
 export function SiteFooter() {
   const disclaimer = `Food supplements are not a substitute for a varied diet or medical care. Speak to your doctor if you are pregnant, nursing or taking medication. © ${new Date().getFullYear()} Organoli SAL, Beirut, Lebanon.`;
   return (
@@ -54,6 +63,7 @@ export function SiteFooter() {
           <div className="flex max-w-[460px] flex-col items-end gap-2.5 text-right">
             <span className="text-[11px] font-medium uppercase leading-[1.4] tracking-[.14em] text-slate-300">{site.payments.join(" · ")}</span>
             <span className="text-[12.5px] leading-normal text-slate-300">{disclaimer}</span>
+            <Credit className="text-[12.5px] leading-normal text-slate-300" />
           </div>
         </div>
       </div>
@@ -65,6 +75,7 @@ export function SiteFooter() {
           Delivered across Lebanon · WhatsApp {site.whatsapp.display}
         </span>
         <span className="pt-4 text-xs leading-normal text-slate-300">{disclaimer}</span>
+        <Credit className="pt-3 text-xs leading-normal text-slate-300" />
         <span className="pt-5 font-display text-[64px] font-semibold uppercase leading-[.8] tracking-[.04em]" aria-hidden="true">
           Organoli<span className="text-mint">+</span>
         </span>
